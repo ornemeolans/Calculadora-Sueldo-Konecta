@@ -2,11 +2,11 @@ let miformulario = document.getElementById('formulario_sueldo');
 
 
 
-function sueldo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
+function sueldo(contrato, faltas, cferiado, nocturnas, aantiguedad, obrasocial) {
     let tremunerativo = remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
     let tnremunerativo = no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
-    let tdescuento = descuentos(tremunerativo, tnremunerativo);
-    let sueldo = tremunerativo[6] + tnremunerativo[12] - tdescuento[5];
+    let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
+    let sueldo = tremunerativo[tremunerativo.length-1] + tnremunerativo[tnremunerativo.length-1] - tdescuento[tdescuento.length-1];
     let fsueldo = tremunerativo.concat(tnremunerativo);
     fsueldo = fsueldo.concat(tdescuento);
     fsueldo = fsueldo.concat(sueldo);
@@ -189,16 +189,28 @@ function no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
     }
 }
 
-function descuentos(tremunerativo, tnremunerativo) {
+function descuentos(tremunerativo, tnremunerativo, obrasocial) {
+    if (obrasocial == 'OTRA'){
     APORTE_SIJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 11 / 100
     APORTE_INSSJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
     APORTE_O_SOC_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
     CTT_S_FALLECIMIENTO = tremunerativo[tremunerativo.length-1] * 0.59 / 100
     CTT_688_14 = (tremunerativo[tremunerativo.length-1] + tnremunerativo[tnremunerativo.length-1]) * 1.5 / 100
-    total_descuentos = (APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + APORTE_SIJP_SOBRE_SUELDO + CTT_688_14 + CTT_S_FALLECIMIENTO)
-    return tdescuentos = [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, total_descuentos]
+    APORTE_O_SOC_ACUERDO = 0
+    total_descuentos = (APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + APORTE_SIJP_SOBRE_SUELDO + CTT_688_14 + CTT_S_FALLECIMIENTO + APORTE_O_SOC_ACUERDO)
+    return tdescuentos = [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO, total_descuentos]
 }
-
+else{
+    APORTE_SIJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 11 / 100
+    APORTE_INSSJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
+    APORTE_O_SOC_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
+    CTT_S_FALLECIMIENTO = tremunerativo[tremunerativo.length-1] * 0.59 / 100
+    CTT_688_14 = (tremunerativo[tremunerativo.length-1] + tnremunerativo[tnremunerativo.length-1]) * 1.5 / 100
+    APORTE_O_SOC_ACUERDO = tremunerativo[tremunerativo.length-1] * 1.30 / 100
+    total_descuentos = (APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + APORTE_SIJP_SOBRE_SUELDO + CTT_688_14 + CTT_S_FALLECIMIENTO + APORTE_O_SOC_ACUERDO)
+    return tdescuentos = [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO, total_descuentos]
+}
+}
 document.getElementById('calcular').addEventListener('click', (e) => {
     e.preventDefault();
 
@@ -208,6 +220,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const cferiado = parseInt(document.getElementById('feriados').value) || 0;
     const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
     const aantiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
+    const obrasocial = document.getElementById('obrasocial').value;
 
     // Listas de conceptos
     const conceptos = [
@@ -218,13 +231,13 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         "ACUERDO SEPTIEMBRE 2024", "ACUERDO SEPTIEMBRE 2024 PRESENTISMO",
         "ACUERDO SEPTIEMBRE 2024 ANTIGUEDAD", "ACUERDO SEPTIEMBRE 2024 PUNTUALIDAD",
         "ACUERDO SEPTIEMBRE 2024 FERIADO", "APORTE SIJP SOBRE SUELDO",
-        "APORTE INSSJP SOBRE SUELDO", "APORTE O. SOC SOBRE SUELDO", "CTT S FALLECIMIENTO", "CTT 688/14"
+        "APORTE INSSJP SOBRE SUELDO", "APORTE O. SOC SOBRE SUELDO", "CTT S FALLECIMIENTO", "CTT 688/14", "APORTE O. SOCIAL ACUERDO"
     ];
 
     // Generar listas de valores
     const tremunerativo = remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
     const tnremunerativo = no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
-    const tdescuentos = descuentos(tremunerativo, tnremunerativo);
+    const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
 
     // Eliminar tabla anterior si existe
     const tablaExistente = document.querySelector('table');
