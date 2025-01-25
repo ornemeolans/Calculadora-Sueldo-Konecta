@@ -7,11 +7,7 @@ function sueldo(contrato, faltas, cferiado, nocturnas, aantiguedad, obrasocial) 
     let tnremunerativo = no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
     let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
     let sueldo = tremunerativo[tremunerativo.length-1] + tnremunerativo[tnremunerativo.length-1] - tdescuento[tdescuento.length-1];
-    let fsueldo = tremunerativo.concat(tnremunerativo);
-    fsueldo = fsueldo.concat(tdescuento);
-    fsueldo = fsueldo.concat(sueldo);
-    console.log(fsueldo)
-    return sueldo
+    return sueldo.toFixed(2)
 }
 
 
@@ -245,6 +241,16 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         tablaExistente.remove();
     }
 
+    //Crear Titulo
+    const tituloExistente = document.querySelector('p');
+    if (tituloExistente) {
+        tituloExistente.remove();
+    }
+
+    const titulo = document.createElement("p");
+    titulo.innerHTML = "<h3>Enero</h3>";
+    document.body.append(titulo);
+    
     // Crear tabla
     const tabla = document.createElement('table');
     tabla.className = 'table table-bordered';
@@ -330,5 +336,16 @@ document.getElementById('calcular').addEventListener('click', (e) => {
 
     // Agregar tabla al DOM
     document.body.appendChild(tabla);
-});
 
+    //Agregar total
+    const contenedorExistente = document.querySelector('div');
+    if (contenedorExistente) {
+        contenedorExistente.remove();
+    }
+    const tsueldo = sueldo(contrato,faltas,cferiado,nocturnas,aantiguedad,obrasocial);
+    const contenedor = document.createElement("div")
+    contenedor.innerHTML = `<h3>Total a cobrar:</h3>
+                            <p>${tsueldo}</p> 
+                            <p>Aclaración: Este valor no es exacto, es una aproximación</p>`;
+    document.body.appendChild(contenedor);
+});
