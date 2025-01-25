@@ -17,41 +17,44 @@
 </head>
 
 <body>
-    <header>
-        <h1>Calculadora de Sueldo</h1>
-        <img src="assets/konecta-share.jpg" alt="logo-konecta" />
-    </header>
-    <form id="formulario_sueldo">
-        <select class="form-select" id="contrato">
-            <option selected>Contrato de Trabajo</option>
-            <option>36hs</option>
-            <option>35hs</option>
-            <option>30hs</option>
-        </select>
+    <main class="main-container">
+        <header>
+            <h1>Calculadora de Sueldo</h1>
+            <img src="assets/konecta-share.jpg" alt="logo-konecta" />
+        </header>
+        <form id="formulario_sueldo">
+            <select class="form-select" id="contrato">
+                <option selected>Contrato de Trabajo</option>
+                <option>36hs</option>
+                <option>35hs</option>
+                <option>30hs</option>
+            </select>
 
-        <select class="form-select"  id="faltas">
-            <option selected>Tuviste Faltas Justificadas?</option>
-            <option>SI</option>
-            <option>NO</option>
-        </select>
-        <label for="formGroupExampleInput" class="form-label">Feriados Trabajados</label>
-        <input type="number" class="form-control" id="feriados" placeholder="Ingresa la cantidad">
-        <label for="formGroupExampleInput2" class="form-label">Horas Nocturnas</label>
-        <input type="number" class="form-control" id="nocturnas" placeholder="Ingresa la cantidad">
-        <label for="formGroupExampleInput3" class="form-label">Años de Antigüedad</label>
-        <input type="number" class="form-control" id="antiguedad" placeholder="Ingresa la cantidad">
-        <select class="form-select" id="obrasocial">
-            <option selected>Cual es tu obra social?</option>
-            <option>GEA</option>
-            <option>OTRA</option>
-        </select>
-        <button href="#" type="submit" class="btn btn-primary" id="calcular">Calcular</button>
-    </form>
+            <select class="form-select" id="faltas">
+                <option selected>Tuviste Faltas Justificadas?</option>
+                <option>SI</option>
+                <option>NO</option>
+            </select>
+            <label for="formGroupExampleInput" class="form-label">Feriados Trabajados</label>
+            <input type="number" class="form-control" id="feriados" placeholder="Ingresa la cantidad">
+            <label for="formGroupExampleInput2" class="form-label">Horas Nocturnas</label>
+            <input type="number" class="form-control" id="nocturnas" placeholder="Ingresa la cantidad">
+            <label for="formGroupExampleInput3" class="form-label">Años de Antigüedad</label>
+            <input type="number" class="form-control" id="antiguedad" placeholder="Ingresa la cantidad">
+            <select class="form-select" id="obrasocial">
+                <option selected>Cual es tu obra social?</option>
+                <option>GEA</option>
+                <option>OTRA</option>
+            </select>
+            <button href="#" type="submit" class="btn btn-primary" id="calcular">Calcular</button>
+        </form>
+    </main>
 
-    
 
     <script src="./js/script.js">
     </script>
+
+    <footer> © Ornella Meolans</footer>
 </body>
-<footer> © Ornella Meolans</footer>
+
 </html>

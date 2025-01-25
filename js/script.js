@@ -235,6 +235,8 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const tnremunerativo = no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
     const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
 
+    const mainContainer = document.querySelector('main');
+
     // Eliminar tabla anterior si existe
     const tablaExistente = document.querySelector('table');
     if (tablaExistente) {
@@ -249,7 +251,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
 
     const titulo = document.createElement("p");
     titulo.innerHTML = "<h3>Enero</h3>";
-    document.body.append(titulo);
+    mainContainer.append(titulo);
     
     // Crear tabla
     const tabla = document.createElement('table');
@@ -335,7 +337,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     tabla.appendChild(cuerpo);
 
     // Agregar tabla al DOM
-    document.body.appendChild(tabla);
+    mainContainer.appendChild(tabla);
 
     //Agregar total
     const contenedorExistente = document.querySelector('div');
@@ -347,5 +349,5 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     contenedor.innerHTML = `<h3>Total a cobrar:</h3>
                             <p>${tsueldo}</p> 
                             <p>Aclaración: Este valor no es exacto, es una aproximación</p>`;
-    document.body.appendChild(contenedor);
+    mainContainer.appendChild(contenedor);
 });
