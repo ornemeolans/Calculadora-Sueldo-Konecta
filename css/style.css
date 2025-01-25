@@ -167,3 +167,9 @@ tbody{
     text-align: center;
     color: black;
 }
+
+footer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
