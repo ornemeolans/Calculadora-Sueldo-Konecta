@@ -2,18 +2,18 @@ let miformulario = document.getElementById('formulario_sueldo');
 
 
 
-function sueldo(contrato, faltas, cferiado, nocturnas, aantiguedad, obrasocial) {
-    let tremunerativo = remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
-    let tnremunerativo = no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
+function sueldo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad, obrasocial) {
+    let tremunerativo = remunerativo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad);
+    let tnremunerativo = no_remunerativo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad);
     let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
-    let sueldo = tremunerativo[tremunerativo.length-1] + tnremunerativo[tnremunerativo.length-1] - tdescuento[tdescuento.length-1];
+    let sueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
     return sueldo.toFixed(2)
 }
 
 
-function remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
-    if (contrato == '36hs' && faltas == 'NO') {
-        basico = 514987.52
+function remunerativo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad) {
+    if (contrato == '36hs' && faltas == 'NO' && tarde == 'NO') {
+        basico = 638121.21
         feriados = basico / 30 * cferiado
         antiguedad = basico * aantiguedad / 100
         nocturnas = ((basico / 24) / 6 * 0.1311) * nocturnas
@@ -22,8 +22,18 @@ function remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
         return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
     }
-    else if (contrato == '36hs' && faltas == 'SI') {
-        basico = 514987.52
+    else if (contrato == '36hs' && faltas == 'NO' && tarde == 'SI') {
+        basico = 638121.21
+        feriados = basico / 30 * cferiado
+        antiguedad = basico * aantiguedad / 100
+        nocturnas = ((basico / 24) / 6 * 0.1311) * nocturnas
+        puntualidad = 0
+        presentismo = (basico + feriados + antiguedad + nocturnas + puntualidad) * 10 / 100
+        total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
+        return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
+    }
+    else if (contrato == '36hs' && faltas == 'SI' && tarde == 'NO') {
+        basico = 638121.21
         feriados = basico / 30 * cferiado
         antiguedad = basico * aantiguedad / 100
         nocturnas = ((basico / 24) / 6 * 0.1311) * nocturnas
@@ -32,8 +42,18 @@ function remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
         return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
     }
-    else if (contrato == '35hs' && faltas == 'NO') {
-        basico = 500682.29
+    else if (contrato == '36hs' && faltas == 'SI' && tarde == 'SI') {
+        basico = 638121.21
+        feriados = basico / 30 * cferiado
+        antiguedad = basico * aantiguedad / 100
+        nocturnas = ((basico / 24) / 6 * 0.1311) * nocturnas
+        puntualidad = 0
+        presentismo = (basico + feriados + antiguedad + nocturnas + puntualidad) * 6 / 100
+        total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
+        return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
+    }
+    else if (contrato == '35hs' && faltas == 'NO' && tarde == 'NO') {
+        basico = 620395.61
         feriados = basico / 30 * cferiado
         antiguedad = basico * aantiguedad / 100
         nocturnas = ((basico / 22) / 7 * 0.1311) * nocturnas
@@ -42,8 +62,18 @@ function remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
         return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
     }
-    else if (contrato == '35hs' && faltas == 'SI') {
-        basico = 500682.29
+    else if (contrato == '35hs' && faltas == 'NO' && tarde == 'SI') {
+        basico = 620395.61
+        feriados = basico / 30 * cferiado
+        antiguedad = basico * aantiguedad / 100
+        nocturnas = ((basico / 22) / 7 * 0.1311) * nocturnas
+        puntualidad = 0
+        presentismo = (basico + feriados + antiguedad + nocturnas + puntualidad) * 10 / 100
+        total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
+        return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
+    }
+    else if (contrato == '35hs' && faltas == 'SI' && tarde == 'NO') {
+        basico = 620395.61
         feriados = basico / 30 * cferiado
         antiguedad = basico * aantiguedad / 100
         nocturnas = ((basico / 22) / 7 * 0.1311) * nocturnas
@@ -52,8 +82,18 @@ function remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
         return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
     }
-    else if (contrato == '30hs' && faltas == 'NO') {
-        basico = 429156.28
+    else if (contrato == '35hs' && faltas == 'SI' && tarde == 'SI') {
+        basico = 620395.61
+        feriados = basico / 30 * cferiado
+        antiguedad = basico * aantiguedad / 100
+        nocturnas = ((basico / 22) / 7 * 0.1311) * nocturnas
+        puntualidad = 0
+        presentismo = (basico + feriados + antiguedad + nocturnas + puntualidad) * 6 / 100
+        total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
+        return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
+    }
+    else if (contrato == '30hs' && faltas == 'NO' && tarde == 'NO') {
+        basico = 531767.69
         feriados = basico / 30 * cferiado
         antiguedad = basico * aantiguedad / 100
         nocturnas = ((basico / 22) / 6 * 0.1311) * nocturnas
@@ -62,8 +102,27 @@ function remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
         return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
     }
+    else if (contrato == '30hs' && faltas == 'NO' && tarde == 'SI') {
+        basico = 531767.69
+        feriados = basico / 30 * cferiado
+        antiguedad = basico * aantiguedad / 100
+        nocturnas = ((basico / 22) / 6 * 0.1311) * nocturnas
+        puntualidad = 0
+        presentismo = (basico + feriados + antiguedad + nocturnas + puntualidad) * 10 / 100
+        total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
+        return tremunerativo = [basico, feriados, presentismo, antiguedad, puntualidad, nocturnas, total_remunerativo]
+    }
+    else if (contrato == '30hs' && faltas == 'SI' && tarde == 'NO') {
+        basico = 531767.69
+        feriados = basico / 30 * cferiado
+        antiguedad = basico * aantiguedad / 100
+        nocturnas = ((basico / 22) / 6 * 0.1311) * nocturnas
+        puntualidad = basico * 0.5 / 100
+        presentismo = (basico + feriados + antiguedad + nocturnas + puntualidad) * 6 / 100
+        total_remunerativo = (basico + feriados + antiguedad + nocturnas + puntualidad + presentismo)
+    }
     else {
-        basico = 429156.28
+        basico = 531767.69
         feriados = basico / 30 * cferiado
         antiguedad = basico * aantiguedad / 100
         nocturnas = ((basico / 22) / 6 * 0.1311) * nocturnas
@@ -74,13 +133,9 @@ function remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
     }
 }
 
-function no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
-    if (contrato == '36hs' && faltas == 'NO') {
-        aa2024 = 72161.90
-        aa2024_PRESENTISMO = aa2024 * 10 / 100
-        aa2024_ANTIGUEDAD = aa2024 * aantiguedad / 100
-        aa2024_PUNTUALIDAD = aa2024 * 0.5 / 100
-        aj2024 = 74687.57
+function no_remunerativo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad) {
+    if (contrato == '36hs' && faltas == 'NO' && tarde == 'NO') {
+        aj2024 = 48131.99
         aj2024_PRESENTISMO = aj2024 * 10 / 100
         aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
         aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100
@@ -90,15 +145,35 @@ function no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
         as2024_PUNTUALIDAD = as2024 * 0.5 / 100
         as2024_FERIADO = as2024 / 30 * cferiado
-        total_noremunerativo = (aa2024 + aa2024_ANTIGUEDAD + aa2024_PRESENTISMO + aa2024_PUNTUALIDAD + aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD)
-        return tnremunerativo = [aa2024, aa2024_PRESENTISMO, aa2024_ANTIGUEDAD, aa2024_PUNTUALIDAD, aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, total_noremunerativo]
+        ae2025 = 12520.29
+        ae2025_PRESENTISMO = ae2025 * 10 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
     }
-    else if (contrato == '36hs' && faltas == 'SI') {
-        aa2024 = 72161.90
-        aa2024_PRESENTISMO = aa2024 * 6 / 100
-        aa2024_ANTIGUEDAD = aa2024 * aantiguedad / 100
-        aa2024_PUNTUALIDAD = aa2024 * 0.5 / 100
-        aj2024 = 74687.57
+    else if (contrato == '36hs' && faltas == 'NO' && tarde == 'SI') {
+        aj2024 = 48131.99
+        aj2024_PRESENTISMO = aj2024 * 10 / 100
+        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
+        aj2024_PUNTUALIDAD = 0
+        aj2024_FERIADO = aj2024 / 30 * cferiado
+        as2024 = 50234.31
+        as2024_PRESENTISMO = as2024 * 10 / 100
+        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
+        as2024_PUNTUALIDAD = 0
+        as2024_FERIADO = as2024 / 30 * cferiado
+        ae2025 = 12520.29
+        ae2025_PRESENTISMO = ae2025 * 10 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = 0
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
+    }
+    else if (contrato == '36hs' && faltas == 'SI' && tarde == 'NO') {
+        aj2024 = 48131.99
         aj2024_PRESENTISMO = aj2024 * 6 / 100
         aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
         aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100
@@ -108,15 +183,35 @@ function no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
         as2024_PUNTUALIDAD = as2024 * 0.5 / 100
         as2024_FERIADO = as2024 / 30 * cferiado
-        total_noremunerativo = (aa2024 + aa2024_ANTIGUEDAD + aa2024_PRESENTISMO + aa2024_PUNTUALIDAD + aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD)
-        return tnremunerativo = [aa2024, aa2024_PRESENTISMO, aa2024_ANTIGUEDAD, aa2024_PUNTUALIDAD, aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, total_noremunerativo]
+        ae2025 = 12520.29
+        ae2025_PRESENTISMO = ae2025 * 6 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
     }
-    else if (contrato == '35hs' && faltas == 'NO') {
-        aa2024 = 70157.40
-        aa2024_PRESENTISMO = aa2024 * 10 / 100
-        aa2024_ANTIGUEDAD = aa2024 * aantiguedad / 100
-        aa2024_PUNTUALIDAD = aa2024 * 0.5 / 100
-        aj2024 = 72612.91
+    else if (contrato == '36hs' && faltas == 'SI' && tarde == 'SI') {
+        aj2024 = 48131.99
+        aj2024_PRESENTISMO = aj2024 * 6 / 100
+        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
+        aj2024_PUNTUALIDAD = 0
+        aj2024_FERIADO = aj2024 / 30 * cferiado
+        as2024 = 50234.31
+        as2024_PRESENTISMO = as2024 * 6 / 100
+        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
+        as2024_PUNTUALIDAD = 0
+        as2024_FERIADO = as2024 / 30 * cferiado
+        ae2025 = 12520.29
+        ae2025_PRESENTISMO = ae2025 * 6 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = 0
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
+    }
+    else if (contrato == '35hs' && faltas == 'NO' && tarde == 'NO') {
+        aj2024 = 47463.49
         aj2024_PRESENTISMO = aj2024 * 10 / 100
         aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
         aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100
@@ -126,15 +221,35 @@ function no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
         as2024_PUNTUALIDAD = as2024 * 0.5 / 100
         as2024_FERIADO = as2024 / 30 * cferiado
-        total_noremunerativo = (aa2024 + aa2024_ANTIGUEDAD + aa2024_PRESENTISMO + aa2024_PUNTUALIDAD + aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD)
-        return tnremunerativo = [aa2024, aa2024_PRESENTISMO, aa2024_ANTIGUEDAD, aa2024_PUNTUALIDAD, aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, total_noremunerativo]
+        ae2025 = 12172.5
+        ae2025_PRESENTISMO = ae2025 * 10 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
     }
-    else if (contrato == '35hs' && faltas == 'SI') {
-        aa2024 = 70157.40
-        aa2024_PRESENTISMO = aa2024 * 6 / 100
-        aa2024_ANTIGUEDAD = aa2024 * aantiguedad / 100
-        aa2024_PUNTUALIDAD = aa2024 * 0.5 / 100
-        aj2024 = 72612.91
+    else if (contrato == '35hs' && faltas == 'NO' && tarde == 'SI') {
+        aj2024 = 47463.49
+        aj2024_PRESENTISMO = aj2024 * 10 / 100
+        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
+        aj2024_PUNTUALIDAD = 0
+        aj2024_FERIADO = aj2024 / 30 * cferiado
+        as2024 = 48838.91
+        as2024_PRESENTISMO = as2024 * 10 / 100
+        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
+        as2024_PUNTUALIDAD = 0
+        as2024_FERIADO = as2024 / 30 * cferiado
+        ae2025 = 12172.5
+        ae2025_PRESENTISMO = ae2025 * 10 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = 0
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
+    }
+    else if (contrato == '35hs' && faltas == 'SI' && tarde == 'NO') {
+        aj2024 = 47463.49
         aj2024_PRESENTISMO = aj2024 * 6 / 100
         aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
         aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100
@@ -144,15 +259,73 @@ function no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
         as2024_PUNTUALIDAD = as2024 * 0.5 / 100
         as2024_FERIADO = as2024 / 30 * cferiado
-        total_noremunerativo = (aa2024 + aa2024_ANTIGUEDAD + aa2024_PRESENTISMO + aa2024_PUNTUALIDAD + aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD)
-        return tnremunerativo = [aa2024, aa2024_PRESENTISMO, aa2024_ANTIGUEDAD, aa2024_PUNTUALIDAD, aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, total_noremunerativo]
+        ae2025 = 12172.5
+        ae2025_PRESENTISMO = ae2025 * 6 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
     }
-    else if (contrato == '30hs' && faltas == 'NO') {
-        aa2024 = 60134.92
-        aa2024_PRESENTISMO = aa2024 * 6 / 100
-        aa2024_ANTIGUEDAD = aa2024 * aantiguedad / 100
-        aa2024_PUNTUALIDAD = aa2024 * 0.5 / 100
-        aj2024 = 62239.64
+    else if (contrato == '35hs' && faltas == 'SI' && tarde == 'SI') {
+        aj2024 = 47463.49
+        aj2024_PRESENTISMO = aj2024 * 6 / 100
+        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
+        aj2024_PUNTUALIDAD = 0
+        aj2024_FERIADO = aj2024 / 30 * cferiado
+        as2024 = 48838.91
+        as2024_PRESENTISMO = as2024 * 6 / 100
+        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
+        as2024_PUNTUALIDAD = 0
+        as2024_FERIADO = as2024 / 30 * cferiado
+        ae2025 = 12172.5
+        ae2025_PRESENTISMO = ae2025 * 6 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = 0
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
+    }
+    else if (contrato == '30hs' && faltas == 'NO' && tarde == 'NO') {
+        aj2024 = 40109.99
+        aj2024_PRESENTISMO = aj2024 * 10 / 100
+        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
+        aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100
+        aj2024_FERIADO = aj2024 / 30 * cferiado
+        as2024 = 41861.92
+        as2024_PRESENTISMO = as2024 * 10 / 100
+        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
+        as2024_PUNTUALIDAD = as2024 * 0.5 / 100
+        as2024_FERIADO = as2024 / 30 * cferiado
+        ae2025 = 10433.57
+        ae2025_PRESENTISMO = ae2025 * 10 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
+    }
+    else if (contrato == '30hs' && faltas == 'NO' && tarde == 'SI') {
+        aj2024 = 40109.99
+        aj2024_PRESENTISMO = aj2024 * 10 / 100
+        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
+        aj2024_PUNTUALIDAD = 0
+        aj2024_FERIADO = aj2024 / 30 * cferiado
+        as2024 = 41861.92
+        as2024_PRESENTISMO = as2024 * 10 / 100
+        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
+        as2024_PUNTUALIDAD = 0
+        as2024_FERIADO = as2024 / 30 * cferiado
+        ae2025 = 10433.57
+        ae2025_PRESENTISMO = ae2025 * 10 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = 0
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
+    }
+    else if (contrato == '30hs' && faltas == 'SI' && tarde == 'NO') {
+        aj2024 = 40109.99
         aj2024_PRESENTISMO = aj2024 * 6 / 100
         aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
         aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100
@@ -162,50 +335,56 @@ function no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad) {
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
         as2024_PUNTUALIDAD = as2024 * 0.5 / 100
         as2024_FERIADO = as2024 / 30 * cferiado
-        total_noremunerativo = (aa2024 + aa2024_ANTIGUEDAD + aa2024_PRESENTISMO + aa2024_PUNTUALIDAD + aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD)
-        return tnremunerativo = [aa2024, aa2024_PRESENTISMO, aa2024_ANTIGUEDAD, aa2024_PUNTUALIDAD, aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, total_noremunerativo]
+        ae2025 = 10433.57
+        ae2025_PRESENTISMO = ae2025 * 6 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
     }
     else {
-        aa2024 = 60134.92
-        aa2024_PRESENTISMO = aa2024 * 6 / 100
-        aa2024_ANTIGUEDAD = aa2024 * aantiguedad / 100
-        aa2024_PUNTUALIDAD = aa2024 * 0.5 / 100
-        aj2024 = 62239.64
+        aj2024 = 40109.99
         aj2024_PRESENTISMO = aj2024 * 6 / 100
         aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100
-        aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100
+        aj2024_PUNTUALIDAD = 0
         aj2024_FERIADO = aj2024 / 30 * cferiado
         as2024 = 41861.92
         as2024_PRESENTISMO = as2024 * 6 / 100
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100
-        as2024_PUNTUALIDAD = as2024 * 0.5 / 100
+        as2024_PUNTUALIDAD = 0
         as2024_FERIADO = as2024 / 30 * cferiado
-        total_noremunerativo = (aa2024 + aa2024_ANTIGUEDAD + aa2024_PRESENTISMO + aa2024_PUNTUALIDAD + aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD)
-        return tnremunerativo = [aa2024, aa2024_PRESENTISMO, aa2024_ANTIGUEDAD, aa2024_PUNTUALIDAD, aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, total_noremunerativo]
+        ae2025 = 10433.57
+        ae2025_PRESENTISMO = ae2025 * 6 / 100
+        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100
+        ae2025_PUNTUALIDAD = 0
+        ae2025_FERIADO = ae2025 / 30 * cferiado
+        total_noremunerativo = (aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO + as2024 + as2024_ANTIGUEDAD + as2024_FERIADO + as2024_PRESENTISMO + as2024_PUNTUALIDAD + ae2025 + ae2025_ANTIGUEDAD + ae2025_FERIADO + ae2025_PRESENTISMO + ae2025_PUNTUALIDAD)
+        return tnremunerativo = [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO, as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO, ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo]
     }
 }
 
 function descuentos(tremunerativo, tnremunerativo, obrasocial) {
-    if (obrasocial == 'OTRA'){
-    APORTE_SIJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 11 / 100
-    APORTE_INSSJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
-    APORTE_O_SOC_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
-    CTT_S_FALLECIMIENTO = tremunerativo[tremunerativo.length-1] * 0.59 / 100
-    CTT_688_14 = (tremunerativo[tremunerativo.length-1] + tnremunerativo[tnremunerativo.length-1]) * 1.5 / 100
-    APORTE_O_SOC_ACUERDO = 0
-    total_descuentos = (APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + APORTE_SIJP_SOBRE_SUELDO + CTT_688_14 + CTT_S_FALLECIMIENTO + APORTE_O_SOC_ACUERDO)
-    return tdescuentos = [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO, total_descuentos]
-}
-else{
-    APORTE_SIJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 11 / 100
-    APORTE_INSSJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
-    APORTE_O_SOC_SOBRE_SUELDO = tremunerativo[tremunerativo.length-1] * 3 / 100
-    CTT_S_FALLECIMIENTO = tremunerativo[tremunerativo.length-1] * 0.59 / 100
-    CTT_688_14 = (tremunerativo[tremunerativo.length-1] + tnremunerativo[tnremunerativo.length-1]) * 1.5 / 100
-    APORTE_O_SOC_ACUERDO = tremunerativo[tremunerativo.length-1] * 1.30 / 100
-    total_descuentos = (APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + APORTE_SIJP_SOBRE_SUELDO + CTT_688_14 + CTT_S_FALLECIMIENTO + APORTE_O_SOC_ACUERDO)
-    return tdescuentos = [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO, total_descuentos]
-}
+    if (obrasocial == 'OTRA') {
+        APORTE_SIJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length - 1] * 11 / 100
+        APORTE_INSSJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length - 1] * 3 / 100
+        APORTE_O_SOC_SOBRE_SUELDO = tremunerativo[tremunerativo.length - 1] * 3 / 100
+        CTT_S_FALLECIMIENTO = tremunerativo[tremunerativo.length - 1] * 0.59 / 100
+        CTT_688_14 = (tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1]) * 1.5 / 100
+        APORTE_O_SOC_ACUERDO = 0
+        total_descuentos = (APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + APORTE_SIJP_SOBRE_SUELDO + CTT_688_14 + CTT_S_FALLECIMIENTO + APORTE_O_SOC_ACUERDO)
+        return tdescuentos = [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO, total_descuentos]
+    }
+    else {
+        APORTE_SIJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length - 1] * 11 / 100
+        APORTE_INSSJP_SOBRE_SUELDO = tremunerativo[tremunerativo.length - 1] * 3 / 100
+        APORTE_O_SOC_SOBRE_SUELDO = tremunerativo[tremunerativo.length - 1] * 3 / 100
+        CTT_S_FALLECIMIENTO = tremunerativo[tremunerativo.length - 1] * 0.59 / 100
+        CTT_688_14 = (tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1]) * 1.5 / 100
+        APORTE_O_SOC_ACUERDO = tremunerativo[tremunerativo.length - 1] * 1.30 / 100
+        total_descuentos = (APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + APORTE_SIJP_SOBRE_SUELDO + CTT_688_14 + CTT_S_FALLECIMIENTO + APORTE_O_SOC_ACUERDO)
+        return tdescuentos = [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO, total_descuentos]
+    }
 }
 document.getElementById('calcular').addEventListener('click', (e) => {
     e.preventDefault();
@@ -213,6 +392,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     // Recuperar valores del formulario
     const contrato = document.getElementById('contrato').value;
     const faltas = document.getElementById('faltas').value;
+    const tarde = document.getElementById('tarde').value;
     const cferiado = parseInt(document.getElementById('feriados').value) || 0;
     const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
     const aantiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
@@ -221,18 +401,17 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     // Listas de conceptos
     const conceptos = [
         "BASICO", "FERIADO", "PRESENTISMO", "ANTIGUEDAD", "PUNTUALIDAD", "ADICIONAL HORA NOCTURNA",
-        "ACUERDO ABRIL 2024", "ACUERDO ABRIL 2024 PRESENTISMO", "ACUERDO ABRIL 2024 ANTIGUEDAD",
-        "ACUERDO ABRIL 2024 PUNTUALIDAD", "ACUERDO JULIO 2024", "ACUERDO JULIO 2024 PRESENTISMO",
+        "ACUERDO JULIO 2024", "ACUERDO JULIO 2024 PRESENTISMO",
         "ACUERDO JULIO 2024 ANTIGUEDAD", "ACUERDO JULIO 2024 PUNTUALIDAD", "ACUERDO JULIO 2024 FERIADO",
         "ACUERDO SEPTIEMBRE 2024", "ACUERDO SEPTIEMBRE 2024 PRESENTISMO",
         "ACUERDO SEPTIEMBRE 2024 ANTIGUEDAD", "ACUERDO SEPTIEMBRE 2024 PUNTUALIDAD",
-        "ACUERDO SEPTIEMBRE 2024 FERIADO", "APORTE SIJP SOBRE SUELDO",
+        "ACUERDO SEPTIEMBRE 2024 FERIADO", "ACUERDO ENERO 2025", "ACUERDO ENERO 2025 PRESENTISMO", "ACUERDO ENERO 2025 ANTIGUEDAD", "ACUERDO ENERO 2025 PUNTUALIDAD", "ACUERDO ENERO 2025 FERIADO", "APORTE SIJP SOBRE SUELDO",
         "APORTE INSSJP SOBRE SUELDO", "APORTE O. SOC SOBRE SUELDO", "CTT S FALLECIMIENTO", "CTT 688/14", "APORTE O. SOCIAL ACUERDO"
     ];
 
     // Generar listas de valores
-    const tremunerativo = remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
-    const tnremunerativo = no_remunerativo(contrato, faltas, cferiado, nocturnas, aantiguedad);
+    const tremunerativo = remunerativo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad);
+    const tnremunerativo = no_remunerativo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad);
     const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
 
     const mainContainer = document.querySelector('main');
@@ -250,9 +429,9 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     }
 
     const titulo = document.createElement("p");
-    titulo.innerHTML = "<h3>Enero</h3>";
+    titulo.innerHTML = "<h3>Marzo</h3>";
     mainContainer.append(titulo);
-    
+
     // Crear tabla
     const tabla = document.createElement('table');
     tabla.className = 'table table-bordered';
@@ -301,8 +480,8 @@ document.getElementById('calcular').addEventListener('click', (e) => {
             celda4.innerText = ''; // Dejar la celda vacía
         }
 
-        // Completar columna "Descuentos" (columna 5) comenzando en la fila 21
-        if (i >= 20 && idxDesc < tdescuentos.length - 1) { // Aseguramos que comience desde la fila 21
+        // Completar columna "Descuentos" (columna 5) comenzando en la fila 22
+        if (i >= 21 && idxDesc < tdescuentos.length - 1) { // Aseguramos que comience desde la fila 21
             const valor = tdescuentos[idxDesc++];
             celda5.innerText = valor.toFixed(2);
         } else {
@@ -344,7 +523,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     if (contenedorExistente) {
         contenedorExistente.remove();
     }
-    const tsueldo = sueldo(contrato,faltas,cferiado,nocturnas,aantiguedad,obrasocial);
+    const tsueldo = sueldo(contrato, faltas, tarde, cferiado, nocturnas, aantiguedad, obrasocial);
     const contenedor = document.createElement("div")
     contenedor.innerHTML = `<h3>Total a cobrar:</h3>
                             <p>${tsueldo}</p> 
