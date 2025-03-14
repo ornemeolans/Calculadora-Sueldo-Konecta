@@ -13,7 +13,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@100..900&family=Nunito&display=swap');
     </style>
     <title>Calculadora de Sueldo Konecta</title>
-
 </head>
 
 <body>
@@ -31,10 +30,22 @@
             </select>
 
             <select class="form-select" id="faltas">
-                <option selected>Tuviste Faltas Justificadas?</option>
+                <option selected>Tuviste Faltas?</option>
                 <option translate="no">SI</option>
                 <option translate="no">NO</option>
             </select>
+
+            <!-- Campos adicionales para faltas justificadas y cantidad de faltas -->
+            <div id="faltas-detalle" style="display: none;">
+                <select class="form-select" id="justificadas">
+                    <option selected>Fueron justificadas?</option>
+                    <option translate="no">SI</option>
+                    <option translate="no">NO</option>
+                </select>
+                <label for="cfaltas" class="form-label">Cantidad de días faltados?</label>
+                <input type="number" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
+            </div>
+
             <select class="form-select" id="tarde">
                 <option selected>Tuviste llegadas tarde?</option>
                 <option translate="no">SI</option>
@@ -55,9 +66,7 @@
         </form>
     </main>
 
-
-    <script src="./js/script.js">
-    </script>
+    <script src="./js/script.js"></script>
 
     <footer> © Ornella Meolans</footer>
 </body>

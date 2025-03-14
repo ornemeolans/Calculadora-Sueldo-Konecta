@@ -70,6 +70,16 @@ form {
     color: #111d84
 }
 
+#justificadas {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 8px 8px;
+    padding: 5px 2px;
+    border-width: 5px;
+    color: #111d84
+}
+
 #tarde {
     display: flex;
     flex-direction: column;
@@ -98,6 +108,16 @@ form label {
     color: #111d84;
 }
 #feriados{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0px 8px 0px 8px;
+    padding: 5px 2px;
+    border-width: 5px;
+    color: #111d84
+}
+
+#cfaltas{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
