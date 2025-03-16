@@ -214,8 +214,6 @@ function descuentos(tremunerativo, tnremunerativo, obrasocial) {
 document.getElementById('calcular').addEventListener('click', (e) => {
     e.preventDefault();
 
-    // Depuración: Verificar el estado del contenedor antes de calcular
-    console.log('Estado de faltasContainer antes de calcular:', faltasContainer.style.display);
 
     // Recuperar valores del formulario
     const contrato = document.getElementById('contrato').value;
@@ -370,8 +368,6 @@ document.getElementById('calcular').addEventListener('click', (e) => {
                             <p>${tsueldo}</p> 
                             <p>Aclaración: Este valor no es exacto, es una aproximación</p>`;
     mainContainer.appendChild(contenedor);
-    // Depuración: Verificar el estado del contenedor después de calcular
-    console.log('Estado de faltasContainer después de calcular:', faltasContainer.style.display);
 });
 
 // Get the faltas container
@@ -381,13 +377,11 @@ const faltasSelect = document.getElementById('faltas');
 
 // Función para mostrar u ocultar el contenedor de faltas
 function actualizarFaltasContainer() {
-    console.log('Valor de faltasSelect:', faltasSelect.value);
     if (faltasSelect.value === 'SI') {
         faltasContainer.style.display = 'flex'; // Mostrar el contenedor
     } else {
         faltasContainer.style.display = 'none'; // Ocultar el contenedor
     }
-    console.log('Estado de faltasContainer:', faltasContainer.style.display);
 }
 
 // Escuchar cambios en el campo "Tuviste Faltas?"
@@ -396,16 +390,9 @@ faltasSelect.addEventListener('change', actualizarFaltasContainer);
 // Resetear el formulario y actualizar el contenedor de faltas
 document.getElementById('limpiar').addEventListener('click', () => {
     miformulario.reset(); // Resetear el formulario
-    console.log('Formulario reseteado');
 
     // Forzar la actualización del contenedor de faltas
     actualizarFaltasContainer();
-
-    // Depuración adicional: Verificar si el contenedor existe en el DOM
-    console.log('¿Existe faltasContainer en el DOM?', !!faltasContainer);
-
-    // Depuración adicional: Verificar el valor de faltasSelect después del reset
-    console.log('Valor de faltasSelect después del reset:', faltasSelect.value);
 });
 
 // Inicializar el estado del contenedor de faltas al cargar la página
