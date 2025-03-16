@@ -1,15 +1,5 @@
 let miformulario = document.getElementById('formulario_sueldo');
 
-// Mostrar u ocultar campos de faltas justificadas y cantidad de faltas
-document.getElementById('faltas').addEventListener('change', function () {
-    const faltasDetalle = document.getElementById('faltas-detalle');
-    if (this.value === 'SI') {
-        faltasDetalle.style.display = 'block'; // Mostrar campos adicionales
-    } else {
-        faltasDetalle.style.display = 'none'; // Ocultar campos adicionales
-    }
-});
-
 function sueldo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial) {
     let tremunerativo = remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad);
     let tnremunerativo = no_remunerativo(contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
@@ -25,15 +15,15 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
     if (contrato == '36hs' && faltas == 'NO') {
         basico = 638121.21;
     } else if (contrato == '36hs' && faltas == 'SI') {
-        basico = (638121.21/30)*(30-cfaltas) ;
+        basico = (638121.21 / 30) * (30 - cfaltas);
     } else if (contrato == '35hs' && faltas == 'NO') {
         basico = 620395.61;
     } else if (contrato == '35hs' && faltas == 'SI') {
-        basico = (620395.61/30)*(30-cfaltas);
+        basico = (620395.61 / 30) * (30 - cfaltas);
     } else if (contrato == '30hs' && faltas == 'NO') {
         basico = 531767.69;
     } else if (contrato == '30hs' && faltas == 'SI') {
-        basico = (531767.69/30)*(30-cfaltas);
+        basico = (531767.69 / 30) * (30 - cfaltas);
     }
 
     // Calcular feriados, antigüedad y horas nocturnas
@@ -53,11 +43,11 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
     } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
         puntualidad = basico * 0.5 / 100;
         presentismo = (basico + feriados + antiguedad + nocturnasAdicional + puntualidad) * 6 / 100;
-        dlicencia = basico/30*cfaltas;
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
+        dlicencia = basico / 30 * cfaltas;
+    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
         puntualidad = 0;
         presentismo = (basico + feriados + antiguedad + nocturnasAdicional + puntualidad) * 6 / 100;
-        dlicencia = basico/30*cfaltas;
+        dlicencia = basico / 30 * cfaltas;
     } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'NO') {
         puntualidad = basico * 0.5 / 100;
         presentismo = 0;
@@ -224,6 +214,9 @@ function descuentos(tremunerativo, tnremunerativo, obrasocial) {
 document.getElementById('calcular').addEventListener('click', (e) => {
     e.preventDefault();
 
+    // Depuración: Verificar el estado del contenedor antes de calcular
+    console.log('Estado de faltasContainer antes de calcular:', faltasContainer.style.display);
+
     // Recuperar valores del formulario
     const contrato = document.getElementById('contrato').value;
     const faltas = document.getElementById('faltas').value;
@@ -377,4 +370,43 @@ document.getElementById('calcular').addEventListener('click', (e) => {
                             <p>${tsueldo}</p> 
                             <p>Aclaración: Este valor no es exacto, es una aproximación</p>`;
     mainContainer.appendChild(contenedor);
+    // Depuración: Verificar el estado del contenedor después de calcular
+    console.log('Estado de faltasContainer después de calcular:', faltasContainer.style.display);
 });
+
+// Get the faltas container
+const faltasContainer = document.getElementById('faltas-container');
+// Get the faltas select
+const faltasSelect = document.getElementById('faltas');
+
+// Función para mostrar u ocultar el contenedor de faltas
+function actualizarFaltasContainer() {
+    console.log('Valor de faltasSelect:', faltasSelect.value);
+    if (faltasSelect.value === 'SI') {
+        faltasContainer.style.display = 'flex'; // Mostrar el contenedor
+    } else {
+        faltasContainer.style.display = 'none'; // Ocultar el contenedor
+    }
+    console.log('Estado de faltasContainer:', faltasContainer.style.display);
+}
+
+// Escuchar cambios en el campo "Tuviste Faltas?"
+faltasSelect.addEventListener('change', actualizarFaltasContainer);
+
+// Resetear el formulario y actualizar el contenedor de faltas
+document.getElementById('limpiar').addEventListener('click', () => {
+    miformulario.reset(); // Resetear el formulario
+    console.log('Formulario reseteado');
+
+    // Forzar la actualización del contenedor de faltas
+    actualizarFaltasContainer();
+
+    // Depuración adicional: Verificar si el contenedor existe en el DOM
+    console.log('¿Existe faltasContainer en el DOM?', !!faltasContainer);
+
+    // Depuración adicional: Verificar el valor de faltasSelect después del reset
+    console.log('Valor de faltasSelect después del reset:', faltasSelect.value);
+});
+
+// Inicializar el estado del contenedor de faltas al cargar la página
+actualizarFaltasContainer();

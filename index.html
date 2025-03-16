@@ -34,18 +34,15 @@
                 <option translate="no">SI</option>
                 <option translate="no">NO</option>
             </select>
-
-            <!-- Campos adicionales para faltas justificadas y cantidad de faltas -->
-            <div id="faltas-detalle" style="display: none;">
-                <select class="form-select" id="justificadas">
-                    <option selected>Fueron justificadas?</option>
-                    <option translate="no">SI</option>
-                    <option translate="no">NO</option>
-                </select>
-                <label for="cfaltas" class="form-label">Cantidad de días faltados?</label>
-                <input type="number" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
-            </div>
-
+            <div id="faltas-container" style="display: none;">
+    <select class="form-select" id="justificadas">
+        <option selected>Fueron Justificadas?</option>
+        <option translate="no">SI</option>
+        <option translate="no">NO</option>
+    </select>
+    <label for="cfaltas" class="form-label">Cantidad de días de ausencia</label>
+    <input type="number" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
+</div>
             <select class="form-select" id="tarde">
                 <option selected>Tuviste llegadas tarde?</option>
                 <option translate="no">SI</option>
@@ -63,6 +60,7 @@
                 <option translate="no">OTRA</option>
             </select>
             <button href="#" type="submit" class="btn btn-primary" id="calcular">Calcular</button>
+            <button type="button" class="btn btn-secondary" id="limpiar">Reset</button>
         </form>
     </main>
 
