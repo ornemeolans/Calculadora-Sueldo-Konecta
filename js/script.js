@@ -13,17 +13,17 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
 
     // Definir el básico según el tipo de contrato
     if (contrato == '36hs' && faltas == 'NO') {
-        basico = 638121.21;
+        basico = 698773.49;
     } else if (contrato == '36hs' && faltas == 'SI') {
-        basico = (638121.21 / 30) * (30 - cfaltas);
+        basico = (698773.49 / 30) * (30 - cfaltas);
     } else if (contrato == '35hs' && faltas == 'NO') {
-        basico = 620395.61;
+        basico = 679363.1;
     } else if (contrato == '35hs' && faltas == 'SI') {
-        basico = (620395.61 / 30) * (30 - cfaltas);
+        basico = (679363.1 / 30) * (30 - cfaltas);
     } else if (contrato == '30hs' && faltas == 'NO') {
-        basico = 531767.69;
+        basico = 582311.26;
     } else if (contrato == '30hs' && faltas == 'SI') {
-        basico = (531767.69 / 30) * (30 - cfaltas);
+        basico = (582311.26 / 30) * (30 - cfaltas);
     }
 
     // Calcular feriados, antigüedad y horas nocturnas
@@ -64,128 +64,128 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
 }
 
 function no_remunerativo(contrato, tarde, faltas, justificadas, cferiado, aantiguedad) {
-    let aj2024, as2024, ae2025;
+    let aa2025, as2024, am2025;
 
     // Definir los valores no remunerativos según el tipo de contrato
     if (contrato == '36hs') {
-        aj2024 = 48131.99;
         as2024 = 50234.31;
-        ae2025 = 12520.29;
+        aa2025 = 40446.42;
+        am2025 = 17601.68;
     } else if (contrato == '35hs') {
-        aj2024 = 47463.49;
         as2024 = 48838.91;
-        ae2025 = 12172.5;
+        aa2025 = 39322.91;
+        am2025 = 17122.75;
     } else if (contrato == '30hs') {
-        aj2024 = 40109.99;
         as2024 = 41861.92;
-        ae2025 = 10433.57;
+        aa2025 = 33705.35;
+        am2025 = 14668.07;
     }
 
-    let aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO;
+    let aa2025_PRESENTISMO, aa2025_ANTIGUEDAD, aa2025_PUNTUALIDAD, aa2025_FERIADO;
     let as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO;
-    let ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO;
+    let am2025_PRESENTISMO, am2025_ANTIGUEDAD, am2025_PUNTUALIDAD, am2025_FERIADO;
 
     // Calcular los valores no remunerativos según las faltas
     if (faltas == 'NO' && tarde == 'NO') {
-        aj2024_PRESENTISMO = aj2024 * 10 / 100;
-        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100;
-        aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100;
-        aj2024_FERIADO = aj2024 / 30 * cferiado;
-
         as2024_PRESENTISMO = as2024 * 10 / 100;
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
         as2024_PUNTUALIDAD = as2024 * 0.5 / 100;
         as2024_FERIADO = as2024 / 30 * cferiado;
 
-        ae2025_PRESENTISMO = ae2025 * 10 / 100;
-        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100;
-        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100;
-        ae2025_FERIADO = ae2025 / 30 * cferiado;
+        aa2025_PRESENTISMO = aa2025 * 10 / 100;
+        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
+        aa2025_PUNTUALIDAD = aa2025 * 0.5 / 100;
+        aa2025_FERIADO = aa2025 / 30 * cferiado;
+
+        am2025_PRESENTISMO = am2025 * 10 / 100;
+        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
+        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
+        am2025_FERIADO = am2025 / 30 * cferiado;
     } else if (faltas == 'NO' && tarde == 'SI') {
-        aj2024_PRESENTISMO = aj2024 * 10 / 100;
-        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100;
-        aj2024_PUNTUALIDAD = 0;
-        aj2024_FERIADO = aj2024 / 30 * cferiado;
-
         as2024_PRESENTISMO = as2024 * 10 / 100;
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
         as2024_PUNTUALIDAD = 0;
         as2024_FERIADO = as2024 / 30 * cferiado;
 
-        ae2025_PRESENTISMO = ae2025 * 10 / 100;
-        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100;
-        ae2025_PUNTUALIDAD = 0;
-        ae2025_FERIADO = ae2025 / 30 * cferiado;
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
-        aj2024_PRESENTISMO = aj2024 * 6 / 100;
-        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100;
-        aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100;
-        aj2024_FERIADO = aj2024 / 30 * cferiado;
+        aa2025_PRESENTISMO = aa2025 * 10 / 100;
+        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
+        aa2025_PUNTUALIDAD = 0;
+        aa2025_FERIADO = aa2025 / 30 * cferiado;
 
+        am2025_PRESENTISMO = aj2025 * 10 / 100;
+        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
+        am2025_PUNTUALIDAD = 0;
+        am2025_FERIADO = am2025 / 30 * cferiado;
+    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {      
         as2024_PRESENTISMO = as2024 * 6 / 100;
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
         as2024_PUNTUALIDAD = as2024 * 0.5 / 100;
         as2024_FERIADO = as2024 / 30 * cferiado;
 
-        ae2025_PRESENTISMO = ae2025 * 6 / 100;
-        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100;
-        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100;
-        ae2025_FERIADO = ae2025 / 30 * cferiado;
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
-        aj2024_PRESENTISMO = aj2024 * 6 / 100;
-        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100;
-        aj2024_PUNTUALIDAD = 0;
-        aj2024_FERIADO = aj2024 / 30 * cferiado;
+        aa2025_PRESENTISMO = aa2025 * 6 / 100;
+        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
+        aa2025_PUNTUALIDAD = aa2025 * 0.5 / 100;
+        aa2025_FERIADO = aa2025 / 30 * cferiado;
 
+        am2025_PRESENTISMO = am2025 * 6 / 100;
+        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
+        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
+        am2025_FERIADO = am2025 / 30 * cferiado;
+    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
         as2024_PRESENTISMO = as2024 * 6 / 100;
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
         as2024_PUNTUALIDAD = 0;
         as2024_FERIADO = as2024 / 30 * cferiado;
 
-        ae2025_PRESENTISMO = ae2025 * 6 / 100;
-        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100;
-        ae2025_PUNTUALIDAD = 0;
-        ae2025_FERIADO = ae2025 / 30 * cferiado;
+        aa2025_PRESENTISMO = aa2025 * 6 / 100;
+        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
+        aa2025_PUNTUALIDAD = 0;
+        aa2025_FERIADO = aa2025 / 30 * cferiado;
+
+        am2025_PRESENTISMO = am2025 * 6 / 100;
+        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
+        am2025_PUNTUALIDAD = 0;
+        am2025_FERIADO = am2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'SI') {
-        aj2024_PRESENTISMO = 0;
-        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100;
-        aj2024_PUNTUALIDAD = aj2024 * 0.5 / 100;
-        aj2024_FERIADO = aj2024 / 30 * cferiado;
-
         as2024_PRESENTISMO = 0;
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
         as2024_PUNTUALIDAD = 0;
         as2024_FERIADO = as2024 / 30 * cferiado;
 
-        ae2025_PRESENTISMO = 0;
-        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100;
-        ae2025_PUNTUALIDAD = 0;
-        ae2025_FERIADO = ae2025 / 30 * cferiado;
+        aa2025_PRESENTISMO = 0;
+        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
+        aa2025_PUNTUALIDAD = 0;
+        aa2025_FERIADO = aa2025 / 30 * cferiado;
+
+        am2025_PRESENTISMO = 0;
+        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
+        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
+        am2025_FERIADO = am2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'NO') {
-        aj2024_PRESENTISMO = 0;
-        aj2024_ANTIGUEDAD = aj2024 * aantiguedad / 100;
-        aj2024_PUNTUALIDAD = as2024 * 0.5 / 100;
-        aj2024_FERIADO = aj2024 / 30 * cferiado;
-
         as2024_PRESENTISMO = 0;
         as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
         as2024_PUNTUALIDAD = 0;
         as2024_FERIADO = as2024 / 30 * cferiado;
 
-        ae2025_PRESENTISMO = 0;
-        ae2025_ANTIGUEDAD = ae2025 * aantiguedad / 100;
-        ae2025_PUNTUALIDAD = ae2025 * 0.5 / 100;
-        ae2025_FERIADO = ae2025 / 30 * cferiado;
+        aa2025_PRESENTISMO = 0;
+        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
+        aa2025_PUNTUALIDAD = aa2025 * 0.5 / 100;
+        aa2025_FERIADO = aa2025 / 30 * cferiado;
+
+        am2025_PRESENTISMO = 0;
+        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
+        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
+        am2025_FERIADO = am2025 / 30 * cferiado;
     }
 
     // Calcular el total no remunerativo
-    let total_noremunerativo = aj2024 + aj2024_PRESENTISMO + aj2024_ANTIGUEDAD + aj2024_PUNTUALIDAD + aj2024_FERIADO +
+    let total_noremunerativo = aa2025 + aa2025_PRESENTISMO + aa2025_ANTIGUEDAD + aa2025_PUNTUALIDAD + aa2025_FERIADO +
         as2024 + as2024_PRESENTISMO + as2024_ANTIGUEDAD + as2024_PUNTUALIDAD + as2024_FERIADO +
-        ae2025 + ae2025_PRESENTISMO + ae2025_ANTIGUEDAD + ae2025_PUNTUALIDAD + ae2025_FERIADO;
+        am2025 + am2025_PRESENTISMO + am2025_ANTIGUEDAD + am2025_PUNTUALIDAD + am2025_FERIADO;
 
-    return [aj2024, aj2024_PRESENTISMO, aj2024_ANTIGUEDAD, aj2024_PUNTUALIDAD, aj2024_FERIADO,
-        as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO,
-        ae2025, ae2025_PRESENTISMO, ae2025_ANTIGUEDAD, ae2025_PUNTUALIDAD, ae2025_FERIADO, total_noremunerativo];
+    return [as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO,
+        aa2025, am2025_PRESENTISMO, aa2025_ANTIGUEDAD, aa2025_PUNTUALIDAD, aa2025_FERIADO, 
+        am2025, am2025_PRESENTISMO, am2025_ANTIGUEDAD, am2025_PUNTUALIDAD, am2025_FERIADO, total_noremunerativo];
 }
 
 function descuentos(tremunerativo, tnremunerativo, obrasocial) {
@@ -258,7 +258,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
 
     // Crear título
     const titulo = document.createElement("p");
-    titulo.innerHTML = "<h3>Marzo</h3>";
+    titulo.innerHTML = "<h3>Mayo</h3>";
     mainContainer.append(titulo);
 
     // Crear tabla
@@ -282,11 +282,10 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     // Lista de conceptos
     const conceptos = [
         "BASICO", "FERIADO", "PRESENTISMO", "ANTIGUEDAD", "PUNTUALIDAD", "DIAS DE LICENCIA", "ADICIONAL HORA NOCTURNA",
-        "ACUERDO JULIO 2024", "ACUERDO JULIO 2024 PRESENTISMO",
-        "ACUERDO JULIO 2024 ANTIGUEDAD", "ACUERDO JULIO 2024 PUNTUALIDAD", "ACUERDO JULIO 2024 FERIADO",
         "ACUERDO SEPTIEMBRE 2024", "ACUERDO SEPTIEMBRE 2024 PRESENTISMO",
         "ACUERDO SEPTIEMBRE 2024 ANTIGUEDAD", "ACUERDO SEPTIEMBRE 2024 PUNTUALIDAD",
-        "ACUERDO SEPTIEMBRE 2024 FERIADO", "ACUERDO ENERO 2025", "ACUERDO ENERO 2025 PRESENTISMO", "ACUERDO ENERO 2025 ANTIGUEDAD", "ACUERDO ENERO 2025 PUNTUALIDAD", "ACUERDO ENERO 2025 FERIADO", "APORTE SIJP SOBRE SUELDO",
+        "ACUERDO SEPTIEMBRE 2024 FERIADO", "ACUERDO ABRIL 2025", "ACUERDO ABRIL 2025 PRESENTISMO", "ACUERDO ABRIL 2025 ANTIGUEDAD", "ACUERDO ABRIL 2025 PUNTUALIDAD", "ACUERDO ABRIL 2025 FERIADO", "ACUERDO MAYO 2025", "ACUERDO MAYO 2025 PRESENTISMO",
+        "ACUERDO MAYO 2025 ANTIGUEDAD", "ACUERDO MAYO 2025 PUNTUALIDAD", "ACUERDO MAYO 2025 FERIADO", "APORTE SIJP SOBRE SUELDO",
         "APORTE INSSJP SOBRE SUELDO", "APORTE O. SOC SOBRE SUELDO", "CTT S FALLECIMIENTO", "CTT 688/14", "APORTE O. SOCIAL ACUERDO"
     ];
 
