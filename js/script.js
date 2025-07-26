@@ -264,7 +264,8 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         // Completar columna "Haberes" (columna 3)
         if (idxRem < tremunerativo.length - 1) {
             const valor = tremunerativo[idxRem++];
-            celda3.innerText = valor.toFixed(2);
+            console.log("Valor en idxRem:", valor);
+            celda3.innerText = (typeof valor === 'number') ? valor.toFixed(2) : '';
         } else {
             celda3.innerText = ''; // Dejar la celda vacía
         }
@@ -272,7 +273,8 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         // Completar columna "No Remunerativo" (columna 4) comenzando en la fila 16
         if (i >= 15 && idxNoRem < tnremunerativo.length - 1) {
             const valor = tnremunerativo[idxNoRem++];
-            celda4.innerText = valor.toFixed(2);
+            console.log("Valor en idxRem:", valor);
+            celda4.innerText = (typeof valor === 'number') ? valor.toFixed(2) : '';
         } else {
             celda4.innerText = ''; // Dejar la celda vacía
         }
@@ -280,7 +282,8 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         // Completar columna "Descuentos" (columna 5) comenzando en la fila 20
         if (i >= 19 && idxDesc < tdescuentos.length - 1) {
             const valor = tdescuentos[idxDesc++];
-            celda5.innerText = valor.toFixed(2);
+            console.log("Valor en idxRem:", valor);
+            celda5.innerText = (typeof valor === 'number') ? valor.toFixed(2) : '';
         } else {
             celda5.innerText = ''; // Dejar la celda vacía
         }
