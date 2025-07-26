@@ -13,22 +13,22 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
 
     // Definir el básico según el tipo de contrato
     if (contrato == '36hs' && faltas == 'NO') {
-        basico = 698773.49;
+        basico = 789454.22;
         aj2025 = 7894.54; 
     } else if (contrato == '36hs' && faltas == 'SI') {
-        basico = (698773.49 / 30) * (30 - cfaltas);
+        basico = (789454.22 / 30) * (30 - cfaltas);
         aj2025 = 7894.54;
     } else if (contrato == '35hs' && faltas == 'NO') {
-        basico = 679363.1;
+        basico = 767524.91;
         aj2025 = 7675.25;
     } else if (contrato == '35hs' && faltas == 'SI') {
-        basico = (679363.1 / 30) * (30 - cfaltas);
+        basico = (767524.91 / 30) * (30 - cfaltas);
         aj2025 = 7675.25;
     } else if (contrato == '30hs' && faltas == 'NO') {
-        basico = 582311.26;
+        basico = 657878.54;
         aj2025 = 6578.79;
     } else if (contrato == '30hs' && faltas == 'SI') {
-        basico = (582311.26 / 30) * (30 - cfaltas);
+        basico = (657878.54 / 30) * (30 - cfaltas);
         aj2025 = 6578.79;
     }
 
