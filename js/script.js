@@ -9,21 +9,27 @@ function sueldo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, noctur
 }
 
 function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad) {
-    let basico, feriados, antiguedad, nocturnasAdicional, puntualidad, presentismo, dlicencia;
+    let basico, feriados, antiguedad, nocturnasAdicional, puntualidad, presentismo, dlicencia, aj2025, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
 
     // Definir el básico según el tipo de contrato
     if (contrato == '36hs' && faltas == 'NO') {
         basico = 698773.49;
+        aj = 7894.54; 
     } else if (contrato == '36hs' && faltas == 'SI') {
         basico = (698773.49 / 30) * (30 - cfaltas);
+        aj = 7894.54;
     } else if (contrato == '35hs' && faltas == 'NO') {
         basico = 679363.1;
+        aj = 7675.25;
     } else if (contrato == '35hs' && faltas == 'SI') {
         basico = (679363.1 / 30) * (30 - cfaltas);
+        aj = 7675.25;
     } else if (contrato == '30hs' && faltas == 'NO') {
         basico = 582311.26;
+        aj = 6578.79;
     } else if (contrato == '30hs' && faltas == 'SI') {
         basico = (582311.26 / 30) * (30 - cfaltas);
+        aj = 6578.79;
     }
 
     // Calcular feriados, antigüedad y horas nocturnas
@@ -36,156 +42,108 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
         puntualidad = basico * 0.5 / 100;
         presentismo = (basico + feriados + antiguedad + nocturnasAdicional + puntualidad) * 10 / 100;
         dlicencia = 0;
+        aj2025_PRESENTISMO = aj2025 * 10 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'NO' && tarde == 'SI') {
         puntualidad = 0;
         presentismo = (basico + feriados + antiguedad + nocturnasAdicional + puntualidad) * 10 / 100;
         dlicencia = 0;
+        aj2025_PRESENTISMO = aj2025 * 10 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = 0;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
         puntualidad = basico * 0.5 / 100;
         presentismo = (basico + feriados + antiguedad + nocturnasAdicional + puntualidad) * 6 / 100;
         dlicencia = basico / 30 * cfaltas;
+        aj2025_PRESENTISMO = aj2025 * 6 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
         puntualidad = 0;
         presentismo = (basico + feriados + antiguedad + nocturnasAdicional + puntualidad) * 6 / 100;
         dlicencia = basico / 30 * cfaltas;
+        aj2025_PRESENTISMO = aj2025 * 6 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = 0;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'NO') {
         puntualidad = basico * 0.5 / 100;
         presentismo = 0;
         dlicencia = 0;
+        aj2025_PRESENTISMO = 0;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'SI') {
         puntualidad = 0;
         presentismo = 0;
         dlicencia = 0;
+        aj2025_PRESENTISMO = 0;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     }
 
     // Calcular el total remunerativo
-    let total_remunerativo = basico + feriados + antiguedad + nocturnasAdicional + puntualidad + presentismo + dlicencia;
-    return [basico, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, total_remunerativo];
+    let total_remunerativo = basico + feriados + antiguedad + nocturnasAdicional + puntualidad + presentismo + dlicencia + aj2025 + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO;
+    return [basico, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, aj2025, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, total_remunerativo];
 }
 
 function no_remunerativo(contrato, tarde, faltas, justificadas, cferiado, aantiguedad) {
-    let aa2025, as2024, am2025;
+    let aj2025;
 
     // Definir los valores no remunerativos según el tipo de contrato
     if (contrato == '36hs') {
-        as2024 = 50234.31;
-        aa2025 = 40446.42;
-        am2025 = 17601.68;
+        aj2025 = 29810.51;
     } else if (contrato == '35hs') {
-        as2024 = 48838.91;
-        aa2025 = 39322.91;
-        am2025 = 17122.75;
+        aj2025 = 28982.44;
     } else if (contrato == '30hs') {
-        as2024 = 41861.92;
-        aa2025 = 33705.35;
-        am2025 = 14668.07;
+        aj2025 = 24842.09;
     }
 
-    let aa2025_PRESENTISMO, aa2025_ANTIGUEDAD, aa2025_PUNTUALIDAD, aa2025_FERIADO;
-    let as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO;
-    let am2025_PRESENTISMO, am2025_ANTIGUEDAD, am2025_PUNTUALIDAD, am2025_FERIADO;
+    let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
 
     // Calcular los valores no remunerativos según las faltas
     if (faltas == 'NO' && tarde == 'NO') {
-        as2024_PRESENTISMO = as2024 * 10 / 100;
-        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
-        as2024_PUNTUALIDAD = as2024 * 0.5 / 100;
-        as2024_FERIADO = as2024 / 30 * cferiado;
-
-        aa2025_PRESENTISMO = aa2025 * 10 / 100;
-        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
-        aa2025_PUNTUALIDAD = aa2025 * 0.5 / 100;
-        aa2025_FERIADO = aa2025 / 30 * cferiado;
-
-        am2025_PRESENTISMO = am2025 * 10 / 100;
-        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
-        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
-        am2025_FERIADO = am2025 / 30 * cferiado;
+        aj2025_PRESENTISMO = aj2025 * 10 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'NO' && tarde == 'SI') {
-        as2024_PRESENTISMO = as2024 * 10 / 100;
-        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
-        as2024_PUNTUALIDAD = 0;
-        as2024_FERIADO = as2024 / 30 * cferiado;
-
-        aa2025_PRESENTISMO = aa2025 * 10 / 100;
-        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
-        aa2025_PUNTUALIDAD = 0;
-        aa2025_FERIADO = aa2025 / 30 * cferiado;
-
-        am2025_PRESENTISMO = aj2025 * 10 / 100;
-        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
-        am2025_PUNTUALIDAD = 0;
-        am2025_FERIADO = am2025 / 30 * cferiado;
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {      
-        as2024_PRESENTISMO = as2024 * 6 / 100;
-        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
-        as2024_PUNTUALIDAD = as2024 * 0.5 / 100;
-        as2024_FERIADO = as2024 / 30 * cferiado;
-
-        aa2025_PRESENTISMO = aa2025 * 6 / 100;
-        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
-        aa2025_PUNTUALIDAD = aa2025 * 0.5 / 100;
-        aa2025_FERIADO = aa2025 / 30 * cferiado;
-
-        am2025_PRESENTISMO = am2025 * 6 / 100;
-        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
-        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
-        am2025_FERIADO = am2025 / 30 * cferiado;
+        aj2025_PRESENTISMO = aj2025 * 10 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = 0;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
+    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
+        aj2025_PRESENTISMO = aj2025 * 6 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
-        as2024_PRESENTISMO = as2024 * 6 / 100;
-        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
-        as2024_PUNTUALIDAD = 0;
-        as2024_FERIADO = as2024 / 30 * cferiado;
-
-        aa2025_PRESENTISMO = aa2025 * 6 / 100;
-        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
-        aa2025_PUNTUALIDAD = 0;
-        aa2025_FERIADO = aa2025 / 30 * cferiado;
-
-        am2025_PRESENTISMO = am2025 * 6 / 100;
-        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
-        am2025_PUNTUALIDAD = 0;
-        am2025_FERIADO = am2025 / 30 * cferiado;
+        aj2025_PRESENTISMO = aj2025 * 6 / 100;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = 0;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'SI') {
-        as2024_PRESENTISMO = 0;
-        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
-        as2024_PUNTUALIDAD = 0;
-        as2024_FERIADO = as2024 / 30 * cferiado;
-
-        aa2025_PRESENTISMO = 0;
-        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
-        aa2025_PUNTUALIDAD = 0;
-        aa2025_FERIADO = aa2025 / 30 * cferiado;
-
-        am2025_PRESENTISMO = 0;
-        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
-        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
-        am2025_FERIADO = am2025 / 30 * cferiado;
+        aj2025_PRESENTISMO = 0;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'NO') {
-        as2024_PRESENTISMO = 0;
-        as2024_ANTIGUEDAD = as2024 * aantiguedad / 100;
-        as2024_PUNTUALIDAD = 0;
-        as2024_FERIADO = as2024 / 30 * cferiado;
-
-        aa2025_PRESENTISMO = 0;
-        aa2025_ANTIGUEDAD = aa2025 * aantiguedad / 100;
-        aa2025_PUNTUALIDAD = aa2025 * 0.5 / 100;
-        aa2025_FERIADO = aa2025 / 30 * cferiado;
-
-        am2025_PRESENTISMO = 0;
-        am2025_ANTIGUEDAD = am2025 * aantiguedad / 100;
-        am2025_PUNTUALIDAD = am2025 * 0.5 / 100;
-        am2025_FERIADO = am2025 / 30 * cferiado;
+        aj2025_PRESENTISMO = 0;
+        aj2025_ANTIGUEDAD = aj2025 * aantiguedad / 100;
+        aj2025_PUNTUALIDAD = aj2025 * 0.5 / 100;
+        aj2025_FERIADO = aj2025 / 30 * cferiado;
     }
 
     // Calcular el total no remunerativo
-    let total_noremunerativo = aa2025 + aa2025_PRESENTISMO + aa2025_ANTIGUEDAD + aa2025_PUNTUALIDAD + aa2025_FERIADO +
-        as2024 + as2024_PRESENTISMO + as2024_ANTIGUEDAD + as2024_PUNTUALIDAD + as2024_FERIADO +
-        am2025 + am2025_PRESENTISMO + am2025_ANTIGUEDAD + am2025_PUNTUALIDAD + am2025_FERIADO;
+    let total_noremunerativo = aj2025 + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO;
 
-    return [as2024, as2024_PRESENTISMO, as2024_ANTIGUEDAD, as2024_PUNTUALIDAD, as2024_FERIADO,
-        aa2025, am2025_PRESENTISMO, aa2025_ANTIGUEDAD, aa2025_PUNTUALIDAD, aa2025_FERIADO, 
-        am2025, am2025_PRESENTISMO, am2025_ANTIGUEDAD, am2025_PUNTUALIDAD, am2025_FERIADO, total_noremunerativo];
+    return [aj2025, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, total_noremunerativo];
 }
 
 function descuentos(tremunerativo, tnremunerativo, obrasocial) {
@@ -258,7 +216,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
 
     // Crear título
     const titulo = document.createElement("p");
-    titulo.innerHTML = "<h3>Mayo</h3>";
+    titulo.innerHTML = "<h3>Julio</h3>";
     mainContainer.append(titulo);
 
     // Crear tabla
@@ -282,10 +240,10 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     // Lista de conceptos
     const conceptos = [
         "BASICO", "FERIADO", "PRESENTISMO", "ANTIGUEDAD", "PUNTUALIDAD", "DIAS DE LICENCIA", "ADICIONAL HORA NOCTURNA",
-        "ACUERDO SEPTIEMBRE 2024", "ACUERDO SEPTIEMBRE 2024 PRESENTISMO",
-        "ACUERDO SEPTIEMBRE 2024 ANTIGUEDAD", "ACUERDO SEPTIEMBRE 2024 PUNTUALIDAD",
-        "ACUERDO SEPTIEMBRE 2024 FERIADO", "ACUERDO ABRIL 2025", "ACUERDO ABRIL 2025 PRESENTISMO", "ACUERDO ABRIL 2025 ANTIGUEDAD", "ACUERDO ABRIL 2025 PUNTUALIDAD", "ACUERDO ABRIL 2025 FERIADO", "ACUERDO MAYO 2025", "ACUERDO MAYO 2025 PRESENTISMO",
-        "ACUERDO MAYO 2025 ANTIGUEDAD", "ACUERDO MAYO 2025 PUNTUALIDAD", "ACUERDO MAYO 2025 FERIADO", "APORTE SIJP SOBRE SUELDO",
+        "ACUERDO JUNIO 2025", "ACUERDO JUNIO 2025 PRESENTISMO",
+        "ACUERDO JUNIO 2025 ANTIGUEDAD", "ACUERDO JUNIO 2025 PUNTUALIDAD", "ACUERDO JUNIO 2025 FERIADO", "APORTE SIJP SOBRE SUELDO",
+        "ACUERDO JULIO 2025", "ACUERDO JULIO 2025 PRESENTISMO",
+        "ACUERDO JULIO 2025 ANTIGUEDAD", "ACUERDO JULIO 2025 PUNTUALIDAD", "ACUERDO JULIO 2025 FERIADO", "APORTE SIJP SOBRE SUELDO",
         "APORTE INSSJP SOBRE SUELDO", "APORTE O. SOC SOBRE SUELDO", "CTT S FALLECIMIENTO", "CTT 688/14", "APORTE O. SOCIAL ACUERDO"
     ];
 
@@ -311,16 +269,16 @@ document.getElementById('calcular').addEventListener('click', (e) => {
             celda3.innerText = ''; // Dejar la celda vacía
         }
 
-        // Completar columna "No Remunerativo" (columna 4) comenzando en la fila 8
-        if (i >= 7 && idxNoRem < tnremunerativo.length - 1) {
+        // Completar columna "No Remunerativo" (columna 4) comenzando en la fila 16
+        if (i >= 15 && idxNoRem < tnremunerativo.length - 1) {
             const valor = tnremunerativo[idxNoRem++];
             celda4.innerText = valor.toFixed(2);
         } else {
             celda4.innerText = ''; // Dejar la celda vacía
         }
 
-        // Completar columna "Descuentos" (columna 5) comenzando en la fila 23
-        if (i >= 22 && idxDesc < tdescuentos.length - 1) {
+        // Completar columna "Descuentos" (columna 5) comenzando en la fila 20
+        if (i >= 19 && idxDesc < tdescuentos.length - 1) {
             const valor = tdescuentos[idxDesc++];
             celda5.innerText = valor.toFixed(2);
         } else {
