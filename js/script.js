@@ -269,16 +269,16 @@ document.getElementById('calcular').addEventListener('click', (e) => {
             celda3.innerText = ''; // Dejar la celda vacía
         }
 
-        // Completar columna "No Remunerativo" (columna 4) comenzando en la fila 16
-        if (i >= 15 && idxNoRem < tnremunerativo.length - 1) {
+        // Completar columna "No Remunerativo" (columna 4) comenzando en la fila 13
+        if (i >= 12 && idxNoRem < tnremunerativo.length - 1) {
             const valor = tnremunerativo[idxNoRem++];
             celda4.innerText = valor.toFixed(2);
         } else {
             celda4.innerText = ''; // Dejar la celda vacía
         }
 
-        // Completar columna "Descuentos" (columna 5) comenzando en la fila 20
-        if (i >= 19 && idxDesc < tdescuentos.length - 1) {
+        // Completar columna "Descuentos" (columna 5) comenzando en la fila 17
+        if (i >= 16 && idxDesc < tdescuentos.length - 1) {
             const valor = tdescuentos[idxDesc++];
             celda5.innerText = valor.toFixed(2);
         } else {
