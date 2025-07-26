@@ -277,8 +277,8 @@ document.getElementById('calcular').addEventListener('click', (e) => {
             celda4.innerText = ''; // Dejar la celda vacía
         }
 
-        // Completar columna "Descuentos" (columna 5) comenzando en la fila 17
-        if (i >= 16 && idxDesc < tdescuentos.length - 1) {
+        // Completar columna "Descuentos" (columna 5) comenzando en la fila 18
+        if (i >= 17 && idxDesc < tdescuentos.length - 1) {
             const valor = tdescuentos[idxDesc++];
             celda5.innerText = valor.toFixed(2);
         } else {
