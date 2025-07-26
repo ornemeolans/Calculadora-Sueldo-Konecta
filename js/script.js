@@ -14,22 +14,22 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
     // Definir el básico según el tipo de contrato
     if (contrato == '36hs' && faltas == 'NO') {
         basico = 698773.49;
-        aj = 7894.54; 
+        aj2025 = 7894.54; 
     } else if (contrato == '36hs' && faltas == 'SI') {
         basico = (698773.49 / 30) * (30 - cfaltas);
-        aj = 7894.54;
+        aj2025 = 7894.54;
     } else if (contrato == '35hs' && faltas == 'NO') {
         basico = 679363.1;
-        aj = 7675.25;
+        aj2025 = 7675.25;
     } else if (contrato == '35hs' && faltas == 'SI') {
         basico = (679363.1 / 30) * (30 - cfaltas);
-        aj = 7675.25;
+        aj2025 = 7675.25;
     } else if (contrato == '30hs' && faltas == 'NO') {
         basico = 582311.26;
-        aj = 6578.79;
+        aj2025 = 6578.79;
     } else if (contrato == '30hs' && faltas == 'SI') {
         basico = (582311.26 / 30) * (30 - cfaltas);
-        aj = 6578.79;
+        aj2025 = 6578.79;
     }
 
     // Calcular feriados, antigüedad y horas nocturnas
@@ -264,8 +264,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         // Completar columna "Haberes" (columna 3)
         if (idxRem < tremunerativo.length - 1) {
             const valor = tremunerativo[idxRem++];
-            console.log("Valor en idxRem:", valor);
-            celda3.innerText = (typeof valor === 'number') ? valor.toFixed(2) : '';
+            celda3.innerText = valor.toFixed(2);
         } else {
             celda3.innerText = ''; // Dejar la celda vacía
         }
@@ -273,8 +272,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         // Completar columna "No Remunerativo" (columna 4) comenzando en la fila 16
         if (i >= 15 && idxNoRem < tnremunerativo.length - 1) {
             const valor = tnremunerativo[idxNoRem++];
-            console.log("Valor en idxRem:", valor);
-            celda4.innerText = (typeof valor === 'number') ? valor.toFixed(2) : '';
+            celda4.innerText = valor.toFixed(2);
         } else {
             celda4.innerText = ''; // Dejar la celda vacía
         }
@@ -282,8 +280,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         // Completar columna "Descuentos" (columna 5) comenzando en la fila 20
         if (i >= 19 && idxDesc < tdescuentos.length - 1) {
             const valor = tdescuentos[idxDesc++];
-            console.log("Valor en idxRem:", valor);
-            celda5.innerText = (typeof valor === 'number') ? valor.toFixed(2) : '';
+            celda5.innerText = valor.toFixed(2);
         } else {
             celda5.innerText = ''; // Dejar la celda vacía
         }
