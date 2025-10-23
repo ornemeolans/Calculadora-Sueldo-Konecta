@@ -13,22 +13,22 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
 
     // Definir el básico según el tipo de contrato
     if (contrato == '36hs' && faltas == 'NO') {
-        basico = 789454.22;
+        basico = 813137.85;
         aj2025 = 7894.54; 
     } else if (contrato == '36hs' && faltas == 'SI') {
-        basico = (789454.22 / 30) * (30 - cfaltas);
+        basico = (813137.85 / 30) * (30 - cfaltas);
         aj2025 = 7894.54;
     } else if (contrato == '35hs' && faltas == 'NO') {
-        basico = 767524.91;
+        basico = 790550.66;
         aj2025 = 7675.25;
     } else if (contrato == '35hs' && faltas == 'SI') {
-        basico = (767524.91 / 30) * (30 - cfaltas);
+        basico = (790550.66 / 30) * (30 - cfaltas);
         aj2025 = 7675.25;
     } else if (contrato == '30hs' && faltas == 'NO') {
-        basico = 657878.54;
+        basico = 677614.89;
         aj2025 = 6578.79;
     } else if (contrato == '30hs' && faltas == 'SI') {
-        basico = (657878.54 / 30) * (30 - cfaltas);
+        basico = (677614.89 / 30) * (30 - cfaltas);
         aj2025 = 6578.79;
     }
 
@@ -316,11 +316,13 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     mainContainer.appendChild(tabla);
 
     // Mostrar el total a cobrar
-    const contenedorExistente = document.querySelector('div');
+    const contenedorExistente = document.getElementById('resultado-container');
     if (contenedorExistente) {
         contenedorExistente.remove();
     }
     const contenedor = document.createElement("div");
+    contenedor.id = "resultado-container";
+    // ID específico para este contenedor
     contenedor.innerHTML = `<h3>Total a cobrar:</h3>
                             <p>${tsueldo}</p> 
                             <p>Aclaración: Este valor no es exacto, es una aproximación</p>`;
