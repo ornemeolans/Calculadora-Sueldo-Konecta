@@ -1,7 +1,19 @@
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --accent: #4cc9f0;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --success: #4bb543;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --gradient: linear-gradient(135deg, #4361ee, #3a0ca3);
+}
+
 * {
     margin: 0;
     padding: 0;
-
+    box-sizing: border-box;
 }
 
 .main-container {
@@ -12,9 +24,24 @@
 
 body {
     font-family: "Nunito", serif;
+    background: var(--gradient);
     font-optical-sizing: auto;
+    color: var(--dark);
+    min-height: 100vh;
     font-weight: 400;
-    font-style: normal;
+    padding: 20px;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 40px);
 }
 
 header {
