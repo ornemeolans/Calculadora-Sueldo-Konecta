@@ -216,7 +216,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
 
     // Crear título
     const titulo = document.createElement("p");
-    titulo.innerHTML = "<h3>Julio</h3>";
+    titulo.innerHTML = "<h3>Octubre</h3>";
     mainContainer.append(titulo);
 
     // Crear tabla
