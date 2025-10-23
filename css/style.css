@@ -44,31 +44,76 @@ body {
     min-height: calc(100vh - 40px);
 }
 
+		
+}
 header {
+    background: var(--gradient);
+    color: white;
     display: flex;
+    padding: 30px 20px;
     flex-direction: column;
     justify-content: center;
+    text-align: center;
     align-items: center;
+    position: relative;
     height: 300px;
     width: 100%;
+    overflow: hidden;
     color: #2601c4;
 }
-
+header::before {
 header h1 {
+    content: "";
     font-size: 70px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     padding: 20px;
+    bottom: 0;
     border-radius: 0.5em 0.5em;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+    background-size: cover;
+    background-position: center;
     background-color: #f5f5f5ef;
 }
-
-header img {
+}
+.logo-container {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 50%;
+    margin-bottom: 20px;
     width: 50%;
+    position: relative;
 }
+.logo {
+    width: 120px;
+    height: 120px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin-right: 20px;
+    margin: 25px 25px;
+    padding: 25px 25px;
+}
+
+.logo i {
+    font-size: 50px;
+    color: var(--primary);
+}
+
+.header-text h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
 
 form {
     display: flex;
