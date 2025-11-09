@@ -16,41 +16,45 @@
     box-sizing: border-box;
 }
 
+/* ---------------------------------------------------- */
+/* --- CONTENEDOR PRINCIPAL Y BODY (Mobile First) --- */
+/* ---------------------------------------------------- */
+
 body {
     font-family: "Nunito", serif;
     background: var(--gradient);
     color: var(--dark);
     min-height: 100vh;
-    padding: 10px; /* Reducir padding general para móvil */
+    padding: 10px; 
+    /* AJUSTE CLAVE: Habilita Flexbox para controlar la altura */
+    display: flex; 
+    flex-direction: column; 
 }
-
-/* ---------------------------------------------------- */
-/* --- CONTENEDOR PRINCIPAL Y HEADER (Mobile First) --- */
-/* ---------------------------------------------------- */
 
 .main-container {
     width: 100%;
     margin: 0 auto;
     background-color: white;
-    border-radius: 15px; /* Ligeramente más pequeño para móvil */
+    border-radius: 15px; 
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 20px);
+    /* CAMBIO CLAVE: Eliminar min-height fijo para que se encoja */
+    /* El footer ahora empujará el contenido cuando sea necesario */
 }
 
 header {
     background: var(--gradient);
     color: white;
-    padding: 20px 15px; /* Padding ajustado */
+    padding: 20px 15px; 
     text-align: center;
     position: relative;
     overflow: hidden;
 }
 
 header h1 {
-    font-size: 2rem; /* Tamaño de fuente más pequeño para móvil */
+    font-size: 2rem; 
     font-weight: 700;
     margin-bottom: 10px;
 }
@@ -58,7 +62,7 @@ header h1 {
 header img {
     max-width: 100%;
     height: auto;
-    width: 150px; /* Ancho fijo para el logo en móvil */
+    width: 150px; 
     margin-top: 10px;
 }
 
@@ -69,7 +73,6 @@ header::before {
     left: 0;
     right: 0;
     bottom: 0;
-    /* Mantenemos el fondo SVG */
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
     background-size: cover;
     background-position: center;
@@ -83,18 +86,18 @@ header::before {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Espaciado entre elementos del formulario */
+    gap: 15px; 
 }
 
 label {
     font-weight: 600;
     margin-bottom: 5px;
     color: var(--primary);
-    display: block; /* Asegura que la etiqueta use todo el ancho */
+    display: block; 
 }
 
 .form-control, .form-select {
-    border-radius: 8px; /* Ligeramente más curvo */
+    border-radius: 8px; 
     padding: 10px 12px;
 }
 
@@ -105,7 +108,7 @@ label {
     margin: 5px 0;
     border-left: 4px solid var(--accent);
     display: flex;
-    flex-direction: column; /* Apilar elementos dentro del contenedor */
+    flex-direction: column; 
     gap: 10px;
 }
 
@@ -126,12 +129,12 @@ label {
 /* Contenedor de la tabla: esencial para el scroll horizontal en móvil */
 main > .table-bordered {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Suavizar scroll en iOS */
+    -webkit-overflow-scrolling: touch; 
 }
 
 .table {
     width: 100%;
-    min-width: 600px; /* Asegura un ancho mínimo para que el scroll funcione */
+    min-width: 600px; 
     margin-bottom: 1rem;
     color: #212529;
     border-collapse: collapse;
@@ -143,7 +146,7 @@ main > .table-bordered {
     vertical-align: top;
     border: 1px solid #dee2e6;
     text-align: center !important;
-    white-space: nowrap; /* Evita que el texto de las celdas se rompa */
+    white-space: nowrap; 
 }
 
 .table thead th {
@@ -192,6 +195,7 @@ footer {
     padding: 15px;
     background: var(--gradient);
     color: white;
+    /* Permite que el footer se pegue al final del viewport o del contenido */
     margin-top: auto;
 }
 
@@ -205,7 +209,7 @@ footer {
     }
 
     .main-container {
-        max-width: 900px; /* Ancho máximo para tablets */
+        max-width: 900px; 
         border-radius: 20px;
     }
 
@@ -213,13 +217,12 @@ footer {
         font-size: 2.5rem;
     }
 
-    /* Estilos de tabla estándar más ancha para escritorio */
+    /* Restaurar el contenedor de la tabla para que no tenga scroll si cabe */
     .table {
         min-width: unset; 
         width: 100%;
     }
     
-    /* Restaurar el contenedor de la tabla para que no tenga scroll si cabe */
     main > .table-bordered {
         overflow-x: hidden;
     }
@@ -227,6 +230,6 @@ footer {
 
 @media (min-width: 1200px) {
     .main-container {
-        max-width: 1200px; /* Ancho máximo para escritorios grandes */
+        max-width: 1200px; 
     }
 }
