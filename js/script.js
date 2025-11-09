@@ -15,22 +15,22 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
 
     // Definir el básico según el tipo de contrato
     if (contrato == '36hs' && faltas == 'NO') {
-        basico = 813137.85;
+        basico = 821032.39;
         aj2025 = 7894.54; 
     } else if (contrato == '36hs' && faltas == 'SI') {
-        basico = (813137.85 / 30) * (30 - cfaltas);
+        basico = (8821032.39 / 30) * (30 - cfaltas);
         aj2025 = 7894.54;
     } else if (contrato == '35hs' && faltas == 'NO') {
-        basico = 790550.66;
+        basico = 798225.91;
         aj2025 = 7675.25;
     } else if (contrato == '35hs' && faltas == 'SI') {
-        basico = (790550.66 / 30) * (30 - cfaltas);
+        basico = (798225.91 / 30) * (30 - cfaltas);
         aj2025 = 7675.25;
     } else if (contrato == '30hs' && faltas == 'NO') {
-        basico = 677614.89;
+        basico = 707000.14;
         aj2025 = 6578.79;
     } else if (contrato == '30hs' && faltas == 'SI') {
-        basico = (677614.89 / 30) * (30 - cfaltas);
+        basico = (707000.14 / 30) * (30 - cfaltas);
         aj2025 = 6578.79;
     }
 
@@ -39,7 +39,7 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
     antiguedad = basico * aantiguedad / 100;
     nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
     // Cálculo de horas extras al 50%
-    extras50_calc = (basico / 24 / 6) * 1.5 * extras50; 
+    extras50_calc = (basico / 30 / 6) * 1.5 * extras50; 
 
     // Calcular puntualidad y presentismo según las faltas
     if (faltas == 'NO' && tarde == 'NO') {
@@ -222,7 +222,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
 
     // Crear título
     const titulo = document.createElement("p");
-    titulo.innerHTML = "<h3>Octubre</h3>";
+    titulo.innerHTML = "<h3>Noviembre</h3>";
     mainContainer.append(titulo);
 
     // Crear tabla
