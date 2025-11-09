@@ -21,28 +21,45 @@ body {
     background: var(--gradient);
     color: var(--dark);
     min-height: 100vh;
-    padding: 20px;
+    padding: 10px; /* Reducir padding general para móvil */
 }
 
+/* ---------------------------------------------------- */
+/* --- CONTENEDOR PRINCIPAL Y HEADER (Mobile First) --- */
+/* ---------------------------------------------------- */
+
 .main-container {
-    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     background-color: white;
-    border-radius: 20px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 15px; /* Ligeramente más pequeño para móvil */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 40px);
+    min-height: calc(100vh - 20px);
 }
 
 header {
     background: var(--gradient);
     color: white;
-    padding: 30px 20px;
+    padding: 20px 15px; /* Padding ajustado */
     text-align: center;
     position: relative;
     overflow: hidden;
+}
+
+header h1 {
+    font-size: 2rem; /* Tamaño de fuente más pequeño para móvil */
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+header img {
+    max-width: 100%;
+    height: auto;
+    width: 150px; /* Ancho fijo para el logo en móvil */
+    margin-top: 10px;
 }
 
 header::before {
@@ -52,191 +69,69 @@ header::before {
     left: 0;
     right: 0;
     bottom: 0;
+    /* Mantenemos el fondo SVG */
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
     background-size: cover;
     background-position: center;
 }
 
-.logo-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-    position: relative;
-}
+/* ---------------------------------------------------- */
+/* ---------------------- FORMULARIO -------------------- */
+/* ---------------------------------------------------- */
 
-.logo {
-    width: 120px;
-    height: 120px;
-    background-color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    margin-right: 20px;
-}
-
-.logo i {
-    font-size: 50px;
-    color: var(--primary);
-}
-
-.header-text {
-    text-align: center;
-}
-
-.header-text h1 {
-    font-size: 2.8rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    position: relative;
-}
-
-.subtitle {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    position: relative;
-}
-
-.content {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 30px;
-    flex: 1;
-}
-
-.form-section {
-    flex: 1;
-    min-width: 300px;
+#formulario_sueldo {
     padding: 20px;
-}
-
-.result-section {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 15px;
-    margin-left: 20px;
-}
-
-.form-card {
-    background: white;
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e9ecef;
-}
-
-.form-group {
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espaciado entre elementos del formulario */
 }
 
 label {
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     color: var(--primary);
-    display: flex;
-    align-items: center;
-    text-align: left;
-}
-
-label i {
-    margin-right: 10px;
-    color: var(--accent);
+    display: block; /* Asegura que la etiqueta use todo el ancho */
 }
 
 .form-control, .form-select {
-    border-radius: 10px;
-    padding: 12px 15px;
-    border: 2px solid #e9ecef;
-    transition: all 0.3s;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 0.25rem rgba(76, 201, 240, 0.25);
-}
-
-.button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.btn-primary {
-    background: var(--gradient);
-    border: none;
-    border-radius: 10px;
-    padding: 12px 25px;
-    font-weight: 600;
-    transition: all 0.3s;
-    width: 100%;
-}
-
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 7px 15px rgba(67, 97, 238, 0.4);
-}
-
-.btn-secondary {
-    background: #6c757d;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 25px;
-    font-weight: 600;
-    transition: all 0.3s;
-    width: 100%;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-3px);
+    border-radius: 8px; /* Ligeramente más curvo */
+    padding: 10px 12px;
 }
 
 .faltas-container {
-    display: none;
     background: #f8f9fa;
     padding: 15px;
     border-radius: 10px;
-    margin: 10px 0;
+    margin: 5px 0;
     border-left: 4px solid var(--accent);
+    display: flex;
+    flex-direction: column; /* Apilar elementos dentro del contenedor */
+    gap: 10px;
 }
 
-.animation-container {
-    text-align: center;
-    margin: 20px 0;
-    padding: 30px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+/* ---------------------------------------------------- */
+/* ---------------------- BOTONES ----------------------- */
+/* ---------------------------------------------------- */
+
+.btn-primary, .btn-secondary {
+    padding: 12px 20px;
+    font-weight: 700;
+    width: 100%;
 }
 
-.coin-animation {
-    font-size: 3rem;
-    color: var(--warning);
-    animation: bounce 2s infinite;
-    margin-bottom: 15px;
+/* ---------------------------------------------------- */
+/* ---------------------- TABLA (RESPONSIVE) ------------ */
+/* ---------------------------------------------------- */
+
+/* Contenedor de la tabla: esencial para el scroll horizontal en móvil */
+main > .table-bordered {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Suavizar scroll en iOS */
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-.animation-container h3 {
-    color: var(--primary);
-    margin: 5px;
-    font-weight: 600;
-    text-align: center;
-}
-
-
-/* Estilos adicionales para la tabla */
 .table {
     width: 100%;
+    min-width: 600px; /* Asegura un ancho mínimo para que el scroll funcione */
     margin-bottom: 1rem;
     color: #212529;
     border-collapse: collapse;
@@ -247,32 +142,13 @@ label i {
     padding: 0.75rem;
     vertical-align: top;
     border: 1px solid #dee2e6;
-    text-align: center !important; /*Forzar centrado en todas las celdas */
+    text-align: center !important;
+    white-space: nowrap; /* Evita que el texto de las celdas se rompa */
 }
 
 .table thead th {
-    vertical-align: bottom;
-    border-bottom: 2px solid #dee2e6;
-    background-color: #4361ee;
+    background-color: var(--primary);
     color: white;
-}
-
-.table tbody + tbody {
-    border-top: 2px solid #dee2e6;
-}
-
-.table-bordered {
-    border: 1px solid #dee2e6;
-}
-
-.table-bordered th,
-.table-bordered td {
-    border: 1px solid #dee2e6;
-}
-
-.table-bordered thead th,
-.table-bordered thead td {
-    border-bottom-width: 2px;
 }
 
 /* Estilo para la fila de totales */
@@ -281,26 +157,76 @@ label i {
     font-weight: bold;
 }
 
-p {
-    margin: 10px;
-    align-items: center;
+/* ---------------------------------------------------- */
+/* ------------------- RESULTADOS Y FOOTER --------------- */
+/* ---------------------------------------------------- */
+
+h3 {
+    text-align: center;
+    margin: 10px 0;
+    color: var(--primary);
+}
+
+#resultado-container {
+    padding: 20px;
+    background-color: var(--light);
+    border-radius: 10px;
+    margin: 15px;
     text-align: center;
 }
 
-h3 {
-    align-items: center;
-    text-align: center;
+#resultado-container h3 {
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+#resultado-container p {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin: 5px 0;
 }
 
 footer {
     text-align: center;
-    padding: 20px;
+    padding: 15px;
     background: var(--gradient);
     color: white;
     margin-top: auto;
 }
 
-footer p {
-    margin: 0;
-    font-weight: 500;
+/* ---------------------------------------------------- */
+/* -------------------- MEDIA QUERIES (ESCRITORIO) ----- */
+/* ---------------------------------------------------- */
+
+@media (min-width: 768px) {
+    body {
+        padding: 40px;
+    }
+
+    .main-container {
+        max-width: 900px; /* Ancho máximo para tablets */
+        border-radius: 20px;
+    }
+
+    header h1 {
+        font-size: 2.5rem;
+    }
+
+    /* Estilos de tabla estándar más ancha para escritorio */
+    .table {
+        min-width: unset; 
+        width: 100%;
+    }
+    
+    /* Restaurar el contenedor de la tabla para que no tenga scroll si cabe */
+    main > .table-bordered {
+        overflow-x: hidden;
+    }
+}
+
+@media (min-width: 1200px) {
+    .main-container {
+        max-width: 1200px; /* Ancho máximo para escritorios grandes */
+    }
 }
