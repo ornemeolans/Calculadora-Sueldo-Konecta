@@ -18,7 +18,7 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
         basico = 821032.39;
         aj2025 = 7894.54; 
     } else if (contrato == '36hs' && faltas == 'SI') {
-        basico = (8821032.39 / 30) * (30 - cfaltas);
+        basico = (821032.39 / 30) * (30 - cfaltas);
         aj2025 = 7894.54;
     } else if (contrato == '35hs' && faltas == 'NO') {
         basico = 798225.91;
