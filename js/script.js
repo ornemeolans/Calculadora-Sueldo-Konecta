@@ -48,9 +48,9 @@ function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, n
     
     // *** CORRECCIÓN DEL ERROR NaN ***
     // Se corrige el índice para tnremunerativo, usando tnremunerativo.length - 1
-    let sueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
+    let tsueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
     
-    return sueldo.toFixed(2);
+    return tsueldo = tsueldo.toFixed(2);
 }
 
 // Se añade 'mes' y 'extras50' a la firma
