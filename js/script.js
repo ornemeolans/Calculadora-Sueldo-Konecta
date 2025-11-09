@@ -1,6 +1,6 @@
 let miformulario = document.getElementById('formulario_sueldo');
 
-// 1. ESTRUCTURA DE DATOS SALARIALES EXTRAÍDA DEL PDF
+// 1. ESTRUCTURA DE DATOS SALARIALES EXTRAÍDA DEL PDF (Valores verificados)
 const ESCALAS_SALARIALES = {
     "JULIO": {
         "36hs": { basico: 789454.22, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
@@ -36,20 +36,26 @@ const ESCALAS_SALARIALES = {
 
 // Se añade 'mes' y 'extras50' a la firma
 function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50) {
+    
+    // Verificación duplicada: El evento 'click' ya valida, pero es bueno tener una capa de seguridad.
+    if (!ESCALAS_SALARIALES[mes] || !ESCALAS_SALARIALES[mes][contrato]) {
+        console.error(`Error: Data no disponible para Mes: ${mes} y Contrato: ${contrato}`);
+        return 0; 
+    }
+    
     let tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50);
     let tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
-    let sueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
+    let sueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
     return sueldo.toFixed(2);
 }
 
 // Se añade 'mes' y 'extras50' a la firma
 function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50) {
-    let feriados, antiguedad, nocturnasAdicional, puntualidad, presentismo, dlicencia, extras50_calc;
-    let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
-
-    // Obtener los valores base según el mes y contrato
+    
+    // Acceso directo a la data usando el mes y contrato
     const data = ESCALAS_SALARIALES[mes][contrato];
+    
     let basico_base = data.basico;
     let acuerdoBaseRem = data.acuerdoRem; // Corresponde al INCREMENTO REM [MES] 2025
     let basico;
@@ -62,10 +68,13 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
     }
 
     // Calcular adicionales
-    feriados = basico / 30 * cferiado;
-    antiguedad = basico * aantiguedad / 100;
-    nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
-    extras50_calc = (basico / 24 / 6) * 1.5 * extras50; // Cálculo de Horas Extras al 50%
+    let feriados = basico / 30 * cferiado;
+    let antiguedad = basico * aantiguedad / 100;
+    let nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
+    let extras50_calc = (basico / 24 / 6) * 1.5 * extras50; // Cálculo de Horas Extras al 50%
+
+    let puntualidad, presentismo, dlicencia;
+    let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
 
     // Lógica de Presentismo y Puntualidad, incluyendo la parte del Acuerdo Remunerativo
     if (faltas == 'NO' && tarde == 'NO') {
@@ -215,6 +224,13 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         alert('Por favor, selecciona el Mes y el Contrato de Trabajo.');
         return;
     }
+    
+    // Validar que la combinación mes/contrato exista en los datos
+    if (!ESCALAS_SALARIALES[mes] || !ESCALAS_SALARIALES[mes][contrato]) {
+        alert(`Error: No se encontró data salarial para Mes: ${mes} y Contrato: ${contrato}.`);
+        return;
+    }
+
 
     // Recuperar valores del formulario
     const faltas = document.getElementById('faltas').value;
