@@ -37,7 +37,6 @@ const ESCALAS_SALARIALES = {
 // Se añade 'mes' y 'extras50' a la firma
 function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50) {
     
-    // Verificación duplicada: El evento 'click' ya valida, pero es bueno tener una capa de seguridad.
     if (!ESCALAS_SALARIALES[mes] || !ESCALAS_SALARIALES[mes][contrato]) {
         console.error(`Error: Data no disponible para Mes: ${mes} y Contrato: ${contrato}`);
         return 0; 
@@ -46,7 +45,11 @@ function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, n
     let tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50);
     let tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
-    let sueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
+    
+    // *** CORRECCIÓN DEL ERROR NaN ***
+    // Se corrige el índice para tnremunerativo, usando tnremunerativo.length - 1
+    let sueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
+    
     return sueldo.toFixed(2);
 }
 
