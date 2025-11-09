@@ -22,6 +22,15 @@
             <img src="assets/konecta-share.jpg" alt="logo-konecta" />
         </header>
         <form id="formulario_sueldo">
+            <select class="form-select" id="mes">
+                <option selected>Selecciona el Mes</option>
+                <option translate="no">JULIO</option>
+                <option translate="no">AGOSTO</option>
+                <option translate="no">SEPTIEMBRE</option>
+                <option translate="no">OCTUBRE</option>
+                <option translate="no">NOVIEMBRE</option>
+                <option translate="no">DICIEMBRE</option>
+            </select>
             <select class="form-select" id="contrato">
                 <option selected>Contrato de Trabajo</option>
                 <option translate="no">36hs</option>
@@ -35,26 +44,26 @@
                 <option translate="no">NO</option>
             </select>
             <div id="faltas-container" style="display: none;">
-    <select class="form-select" id="justificadas">
-        <option selected>Fueron Justificadas?</option>
-        <option translate="no">SI</option>
-        <option translate="no">NO</option>
-    </select>
-    <label for="cfaltas" class="form-label">Cantidad de días de ausencia</label>
-    <input type="number" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
-</div>
+                <select class="form-select" id="justificadas">
+                    <option selected>Fueron Justificadas?</option>
+                    <option translate="no">SI</option>
+                    <option translate="no">NO</option>
+                </select>
+                <label for="cfaltas" class="form-label">Cantidad de días de ausencia</label>
+                <input type="number" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
+            </div>
             <select class="form-select" id="tarde">
                 <option selected>Tuviste llegadas tarde?</option>
                 <option translate="no">SI</option>
                 <option translate="no">NO</option>
             </select>
-            <label for="formGroupExampleInput" class="form-label">Feriados Trabajados</label>
+            <label for="feriados" class="form-label">Feriados Trabajados</label>
             <input type="number" class="form-control" id="feriados" placeholder="Ingresa la cantidad">
+            <label for="nocturnas" class="form-label">Horas Nocturnas</label>
+            <input type="number" class="form-control" id="nocturnas" placeholder="Ingresa la cantidad">
             <label for="extras50" class="form-label">Horas Extras al 50%</label>
             <input type="number" class="form-control" id="extras50" placeholder="Ingresa la cantidad">
-            <label for="formGroupExampleInput2" class="form-label">Horas Nocturnas</label>
-            <input type="number" class="form-control" id="nocturnas" placeholder="Ingresa la cantidad">
-            <label for="formGroupExampleInput3" class="form-label">Años de Antigüedad</label>
+            <label for="antiguedad" class="form-label">Años de Antigüedad</label>
             <input type="number" class="form-control" id="antiguedad" placeholder="Ingresa la cantidad">
             <select class="form-select" id="obrasocial">
                 <option selected>Cual es tu obra social?</option>
