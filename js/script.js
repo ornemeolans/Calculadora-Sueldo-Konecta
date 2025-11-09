@@ -1,15 +1,17 @@
 let miformulario = document.getElementById('formulario_sueldo');
 
-function sueldo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial) {
-    let tremunerativo = remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad);
+// Se añade extras50 a la firma de la función sueldo
+function sueldo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50) {
+    let tremunerativo = remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50);
     let tnremunerativo = no_remunerativo(contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
     let sueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
     return sueldo.toFixed(2);
 }
 
-function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad) {
-    let basico, feriados, antiguedad, nocturnasAdicional, puntualidad, presentismo, dlicencia, aj2025, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
+// Se añade extras50 a la firma de la función remunerativo
+function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50) {
+    let basico, feriados, antiguedad, nocturnasAdicional, puntualidad, presentismo, dlicencia, aj2025, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, extras50_calc;
 
     // Definir el básico según el tipo de contrato
     if (contrato == '36hs' && faltas == 'NO') {
@@ -36,6 +38,8 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
     feriados = basico / 30 * cferiado;
     antiguedad = basico * aantiguedad / 100;
     nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
+    // Cálculo de horas extras al 50%
+    extras50_calc = (basico / 24 / 6) * 1.5 * extras50; 
 
     // Calcular puntualidad y presentismo según las faltas
     if (faltas == 'NO' && tarde == 'NO') {
@@ -88,9 +92,11 @@ function remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, 
         aj2025_FERIADO = aj2025 / 30 * cferiado;
     }
 
-    // Calcular el total remunerativo
-    let total_remunerativo = basico + feriados + antiguedad + nocturnasAdicional + puntualidad + presentismo + dlicencia + aj2025 + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO;
-    return [basico, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, aj2025, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, total_remunerativo];
+    // Calcular el total remunerativo: se añade extras50_calc
+    let total_remunerativo = basico + feriados + antiguedad + nocturnasAdicional + puntualidad + presentismo + dlicencia + aj2025 + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO + extras50_calc;
+    
+    // Se añade extras50_calc al array de retorno (posición 7)
+    return [basico, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, extras50_calc, aj2025, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, total_remunerativo];
 }
 
 function no_remunerativo(contrato, tarde, faltas, justificadas, cferiado, aantiguedad) {
@@ -172,7 +178,6 @@ function descuentos(tremunerativo, tnremunerativo, obrasocial) {
 document.getElementById('calcular').addEventListener('click', (e) => {
     e.preventDefault();
 
-
     // Recuperar valores del formulario
     const contrato = document.getElementById('contrato').value;
     const faltas = document.getElementById('faltas').value;
@@ -180,6 +185,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const cferiado = parseInt(document.getElementById('feriados').value) || 0;
     const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
     const aantiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
+    const extras50 = parseInt(document.getElementById('extras50').value) || 0; // Nuevo: Horas Extras 50%
     const obrasocial = document.getElementById('obrasocial').value;
 
     let justificadas, cfaltas;
@@ -192,11 +198,11 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         cfaltas = 0;
     }
 
-    // Calcular sueldo
-    const tsueldo = sueldo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial);
+    // Calcular sueldo (se pasa extras50)
+    const tsueldo = sueldo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50);
 
-    // Generar listas de valores
-    const tremunerativo = remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad);
+    // Generar listas de valores (se pasa extras50)
+    const tremunerativo = remunerativo(contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50);
     const tnremunerativo = no_remunerativo(contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
 
@@ -237,76 +243,89 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     // Crear cuerpo de la tabla
     const cuerpo = document.createElement('tbody');
 
-    // Lista de conceptos
-    const conceptos = [
-        "BASICO", "FERIADO", "PRESENTISMO", "ANTIGUEDAD", "PUNTUALIDAD", "DIAS DE LICENCIA", "ADICIONAL HORA NOCTURNA",
-        "ACUERDO JUNIO 2025", "ACUERDO JUNIO 2025 PRESENTISMO",
-        "ACUERDO JUNIO 2025 ANTIGUEDAD", "ACUERDO JUNIO 2025 PUNTUALIDAD", "ACUERDO JUNIO 2025 FERIADO",
-        "ACUERDO JULIO 2025", "ACUERDO JULIO 2025 PRESENTISMO",
-        "ACUERDO JULIO 2025 ANTIGUEDAD", "ACUERDO JULIO 2025 PUNTUALIDAD", "ACUERDO JULIO 2025 FERIADO", "APORTE SIJP SOBRE SUELDO",
-        "APORTE INSSJP SOBRE SUELDO", "APORTE O. SOC SOBRE SUELDO", "CTT S FALLECIMIENTO", "CTT 688/14", "APORTE O. SOCIAL ACUERDO"
+    // **Nueva lógica para generar la tabla (Omite filas con valor 0)**
+    
+    // Crear un listado unificado de conceptos y sus valores correspondientes
+    // Las posiciones de tremunerativo y tnremunerativo deben coincidir con las funciones.
+    const lineItems = [
+        // Haberes
+        { name: "BASICO", haberes: tremunerativo[0], no_remunerativo: 0, descuentos: 0 },
+        { name: "FERIADO", haberes: tremunerativo[1], no_remunerativo: 0, descuentos: 0 },
+        { name: "PRESENTISMO", haberes: tremunerativo[2], no_remunerativo: 0, descuentos: 0 },
+        { name: "ANTIGUEDAD", haberes: tremunerativo[3], no_remunerativo: 0, descuentos: 0 },
+        { name: "PUNTUALIDAD", haberes: tremunerativo[4], no_remunerativo: 0, descuentos: 0 },
+        { name: "DIAS DE LICENCIA", haberes: tremunerativo[5], no_remunerativo: 0, descuentos: 0 },
+        { name: "ADICIONAL HORA NOCTURNA", haberes: tremunerativo[6], no_remunerativo: 0, descuentos: 0 },
+        { name: "HORAS EXTRAS 50%", haberes: tremunerativo[7], no_remunerativo: 0, descuentos: 0 }, // Nuevo concepto (índice 7 en tremunerativo)
+        { name: "ACUERDO JUNIO 2025", haberes: tremunerativo[8], no_remunerativo: 0, descuentos: 0 },
+        { name: "ACUERDO JUNIO 2025 PRESENTISMO", haberes: tremunerativo[9], no_remunerativo: 0, descuentos: 0 },
+        { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: tremunerativo[10], no_remunerativo: 0, descuentos: 0 },
+        { name: "ACUERDO JUNIO 2025 PUNTUALIDAD", haberes: tremunerativo[11], no_remunerativo: 0, descuentos: 0 },
+        { name: "ACUERDO JUNIO 2025 FERIADO", haberes: tremunerativo[12], no_remunerativo: 0, descuentos: 0 },
+
+        // No Remunerativos (Nótese que los acuerdos JULIO 2025 son NO REMUNERATIVOS)
+        { name: "ACUERDO JULIO 2025", haberes: 0, no_remunerativo: tnremunerativo[0], descuentos: 0 },
+        { name: "ACUERDO JULIO 2025 PRESENTISMO", haberes: 0, no_remunerativo: tnremunerativo[1], descuentos: 0 },
+        { name: "ACUERDO JULIO 2025 ANTIGUEDAD", haberes: 0, no_remunerativo: tnremunerativo[2], descuentos: 0 },
+        { name: "ACUERDO JULIO 2025 PUNTUALIDAD", haberes: 0, no_remunerativo: tnremunerativo[3], descuentos: 0 },
+        { name: "ACUERDO JULIO 2025 FERIADO", haberes: 0, no_remunerativo: tnremunerativo[4], descuentos: 0 },
+
+        // Descuentos
+        { name: "APORTE SIJP SOBRE SUELDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[0] },
+        { name: "APORTE INSSJP SOBRE SUELDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[1] },
+        { name: "APORTE O. SOC SOBRE SUELDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[2] },
+        { name: "CTT S FALLECIMIENTO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[3] },
+        { name: "CTT 688/14", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[4] },
+        { name: "APORTE O. SOCIAL ACUERDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[5] },
     ];
 
-    // Índices para cada lista
-    let idxRem = 0, idxNoRem = 0, idxDesc = 0;
+    // Iteramos sobre el nuevo listado de conceptos
+    for (const item of lineItems) {
+        // Omite la fila si los tres valores (Haberes, No Remunerativo, Descuentos) son 0
+        if (item.haberes === 0 && item.no_remunerativo === 0 && item.descuentos === 0) {
+            continue; 
+        }
 
-    // Iteramos sobre los conceptos
-    for (let i = 0; i < conceptos.length; i++) {
         const fila = document.createElement('tr');
 
-        const celda2 = document.createElement('td'); // Conceptos
-        celda2.innerText = conceptos[i];
+        const celdaConcepto = document.createElement('td');
+        celdaConcepto.innerText = item.name;
 
-        const celda3 = document.createElement('td'); // Haberes
-        const celda4 = document.createElement('td'); // No Remunerativo
-        const celda5 = document.createElement('td'); // Descuentos
+        const celdaHaberes = document.createElement('td');
+        // Muestra el valor o cadena vacía si es 0
+        celdaHaberes.innerText = item.haberes > 0 ? item.haberes.toFixed(2) : '';
 
-        // Completar columna "Haberes" (columna 3)
-        if (idxRem < tremunerativo.length - 1) {
-            const valor = tremunerativo[idxRem++];
-            celda3.innerText = valor.toFixed(2);
-        } else {
-            celda3.innerText = ''; // Dejar la celda vacía
-        }
+        const celdaNoRemunerativo = document.createElement('td');
+        // Muestra el valor o cadena vacía si es 0
+        celdaNoRemunerativo.innerText = item.no_remunerativo > 0 ? item.no_remunerativo.toFixed(2) : '';
 
-        // Completar columna "No Remunerativo" (columna 4) comenzando en la fila 13
-        if (i >= 12 && idxNoRem < tnremunerativo.length - 1) {
-            const valor = tnremunerativo[idxNoRem++];
-            celda4.innerText = valor.toFixed(2);
-        } else {
-            celda4.innerText = ''; // Dejar la celda vacía
-        }
+        const celdaDescuentos = document.createElement('td');
+        // Muestra el valor o cadena vacía si es 0
+        celdaDescuentos.innerText = item.descuentos > 0 ? item.descuentos.toFixed(2) : '';
 
-        // Completar columna "Descuentos" (columna 5) comenzando en la fila 18
-        if (i >= 17 && idxDesc < tdescuentos.length - 1) {
-            const valor = tdescuentos[idxDesc++];
-            celda5.innerText = valor.toFixed(2);
-        } else {
-            celda5.innerText = ''; // Dejar la celda vacía
-        }
-
-        // Agregar la fila a la tabla
-        fila.appendChild(celda2);
-        fila.appendChild(celda3);
-        fila.appendChild(celda4);
-        fila.appendChild(celda5);
+        // Agregar las celdas a la fila
+        fila.appendChild(celdaConcepto);
+        fila.appendChild(celdaHaberes);
+        fila.appendChild(celdaNoRemunerativo);
+        fila.appendChild(celdaDescuentos);
         cuerpo.appendChild(fila);
     }
 
     // Última fila con los totales (usando el último valor de cada lista)
     const filaFinal = document.createElement('tr');
+    const celdaFinal1 = document.createElement('td');
+    celdaFinal1.innerText = 'TOTALES'; // Concepto
     const celdaFinal2 = document.createElement('td');
+    celdaFinal2.innerText = tremunerativo[tremunerativo.length - 1].toFixed(2); // Último valor de Haberes
     const celdaFinal3 = document.createElement('td');
-    celdaFinal3.innerText = tremunerativo[tremunerativo.length - 1].toFixed(2); // Último valor de Haberes
+    celdaFinal3.innerText = tnremunerativo[tnremunerativo.length - 1].toFixed(2); // Último valor de No Remunerativo
     const celdaFinal4 = document.createElement('td');
-    celdaFinal4.innerText = tnremunerativo[tnremunerativo.length - 1].toFixed(2); // Último valor de No Remunerativo
-    const celdaFinal5 = document.createElement('td');
-    celdaFinal5.innerText = tdescuentos[tdescuentos.length - 1].toFixed(2); // Último valor de Descuentos
+    celdaFinal4.innerText = tdescuentos[tdescuentos.length - 1].toFixed(2); // Último valor de Descuentos
 
+    filaFinal.appendChild(celdaFinal1);
     filaFinal.appendChild(celdaFinal2);
     filaFinal.appendChild(celdaFinal3);
     filaFinal.appendChild(celdaFinal4);
-    filaFinal.appendChild(celdaFinal5);
     cuerpo.appendChild(filaFinal);
 
     // Agregar el cuerpo de la tabla a la tabla
