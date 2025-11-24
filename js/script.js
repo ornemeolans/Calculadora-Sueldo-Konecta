@@ -42,7 +42,7 @@ function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, n
         return 0; 
     }
     
-    let tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50);
+    let tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100);
     let tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
     
@@ -242,7 +242,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const cferiado = parseInt(document.getElementById('feriados').value) || 0;
     const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
     const extras50 = parseInt(document.getElementById('extras50').value) || 0; // Horas Extras 50%
-    const extras100 = parseInt(document.getElementById('extrad100').value) || 0; // Horas extras 100%
+    const extras100 = parseInt(document.getElementById('extras100').value) || 0; // Horas extras 100%
     const aantiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
     const obrasocial = document.getElementById('obrasocial').value;
 
@@ -316,7 +316,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         { name: "DIAS DE LICENCIA", haberes: tremunerativo[5], no_remunerativo: 0, descuentos: 0 },
         { name: "ADICIONAL HORA NOCTURNA", haberes: tremunerativo[6], no_remunerativo: 0, descuentos: 0 },
         { name: "HORAS EXTRAS 50%", haberes: tremunerativo[7], no_remunerativo: 0, descuentos: 0 },
-        { name: "HORAS EXTRAD 100%", haberes: tremunerativo[8], no_remumerativo: 0, descuentos: 0},
+        { name: "HORAS EXTRAS 100%", haberes: tremunerativo[8], no_remumerativo: 0, descuentos: 0},
         { name: "ACUERDO JUNIO 2025", haberes: tremunerativo[9], no_remunerativo: 0, descuentos: 0 },
         { name: "ACUERDO JUNIO 2025 PRESENTISMO", haberes: tremunerativo[10], no_remunerativo: 0, descuentos: 0 },
         { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: tremunerativo[11], no_remunerativo: 0, descuentos: 0 },
