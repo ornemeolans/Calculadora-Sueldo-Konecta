@@ -316,7 +316,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         { name: "DIAS DE LICENCIA", haberes: tremunerativo[5], no_remunerativo: 0, descuentos: 0 },
         { name: "ADICIONAL HORA NOCTURNA", haberes: tremunerativo[6], no_remunerativo: 0, descuentos: 0 },
         { name: "HORAS EXTRAS 50%", haberes: tremunerativo[7], no_remunerativo: 0, descuentos: 0 },
-        { name: "HORAS EXTRAS 100%", haberes: tremunerativo[8], no_remumerativo: 0, descuentos: 0},
+        { name: "HORAS EXTRAS 100%", haberes: tremunerativo[8], no_remunerativo: 0, descuentos: 0},
         { name: "ACUERDO JUNIO 2025", haberes: tremunerativo[9], no_remunerativo: 0, descuentos: 0 },
         { name: "ACUERDO JUNIO 2025 PRESENTISMO", haberes: tremunerativo[10], no_remunerativo: 0, descuentos: 0 },
         { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: tremunerativo[11], no_remunerativo: 0, descuentos: 0 },
