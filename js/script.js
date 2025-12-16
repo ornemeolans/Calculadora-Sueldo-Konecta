@@ -68,7 +68,7 @@ function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, n
 }
 
 // Se añade 'mes' y 'extras50' a la firma
-function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50) {
+function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100) {
     
     const data = ESCALAS_SALARIALES[mes][contrato];
     
@@ -88,6 +88,7 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
     let antiguedad = basico * aantiguedad / 100;
     let nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
     let extras50_calc = (basico / 24 / 6) * 1.5 * extras50; // Cálculo de Horas Extras al 50%
+    let extras100_calc = (basico / 24 / 6) * 2 * extras100; // Cálculo de Horas Extras al 100%
 
     let puntualidad, presentismo, dlicencia;
     let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
@@ -95,7 +96,7 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
     // Lógica de Presentismo y Puntualidad
     if (faltas == 'NO' && tarde == 'NO') {
         puntualidad = basico * 0.5 / 100;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + puntualidad) * 10 / 100;
+        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc+ puntualidad) * 10 / 100;
         dlicencia = 0;
         aj2025_PRESENTISMO = acuerdoBaseRem * 10 / 100;
         aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
@@ -103,7 +104,7 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
         aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
     } else if (faltas == 'NO' && tarde == 'SI') {
         puntualidad = 0;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + puntualidad) * 10 / 100;
+        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + puntualidad) * 10 / 100;
         dlicencia = 0;
         aj2025_PRESENTISMO = acuerdoBaseRem * 10 / 100;
         aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
@@ -111,7 +112,7 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
         aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
         puntualidad = basico * 0.5 / 100;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + puntualidad) * 6 / 100;
+        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + puntualidad) * 6 / 100;
         dlicencia = basico / 30 * cfaltas;
         aj2025_PRESENTISMO = acuerdoBaseRem * 6 / 100;
         aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
@@ -119,7 +120,7 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
         aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
     } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
         puntualidad = 0;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + puntualidad) * 6 / 100;
+        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + puntualidad) * 6 / 100;
         dlicencia = basico / 30 * cfaltas;
         aj2025_PRESENTISMO = acuerdoBaseRem * 6 / 100;
         aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
@@ -232,7 +233,7 @@ function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, a
 
     // Calcular el total no remunerativo sumando lo nuevo (acuerdoBaseNoRemDic se suma tambien)
     let total_noremunerativo = acuerdoBaseNoRem + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO + 
-                               acuerdoBaseNoRemDic + ad2025_PRESENTISMO + ad2025_ANTIGUEDAD + ad2025_PUNTUALIDAD + ad2025_FERIADO;
+                            acuerdoBaseNoRemDic + ad2025_PRESENTISMO + ad2025_ANTIGUEDAD + ad2025_PUNTUALIDAD + ad2025_FERIADO;
 
     // Retornamos array extendido incluyendo el Acuerdo Base Diciembre y su Presentismo
     return [
@@ -295,8 +296,8 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         justificadas = document.getElementById('justificadas').value;
         cfaltas = parseInt(document.getElementById('cfaltas').value) || 0;
         if (justificadas === 'Fueron Justificadas?') {
-             alert('Por favor, selecciona si las faltas fueron justificadas.');
-             return;
+            alert('Por favor, selecciona si las faltas fueron justificadas.');
+            return;
         }
     } else {
         justificadas = 'NO';
@@ -304,10 +305,10 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     }
 
     // Calcular sueldo (se pasan mes y extras50)
-    const tsueldo = sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50);
+    const tsueldo = sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50, extras100);
 
     // Generar listas de valores (se pasan mes y extras50)
-    const tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50);
+    const tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100);
     const tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
 
