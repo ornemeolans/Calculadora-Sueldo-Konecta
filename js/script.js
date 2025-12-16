@@ -2,32 +2,32 @@ let miformulario = document.getElementById('formulario_sueldo');
 
 // 1. ESTRUCTURA DE DATOS SALARIALES EXTRAÍDA DEL PDF (Valores verificados)
 const ESCALAS_SALARIALES = {
-    "JULIO": {
+    "JULIO 2025": {
         "36hs": { basico: 789454.22, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
         "35hs": { basico: 767524.91, acuerdoRem: 7675.25, acuerdoNoRem: 28982.44 },
         "30hs": { basico: 657878.54, acuerdoRem: 6578.79, acuerdoNoRem: 24842.09 }
     },
-    "AGOSTO": {
+    "AGOSTO 2025": {
         "36hs": { basico: 797348.77, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
         "35hs": { basico: 775200.16, acuerdoRem: 7675.25, acuerdoNoRem: 28982.44 },
         "30hs": { basico: 664457.32, acuerdoRem: 6578.79, acuerdoNoRem: 24842.09 }
     },
-    "SEPTIEMBRE": {
+    "SEPTIEMBRE 2025": {
         "36hs": { basico: 805243.31, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
         "35hs": { basico: 782875.41, acuerdoRem: 7675.25, acuerdoNoRem: 28982.44 },
         "30hs": { basico: 671036.10, acuerdoRem: 6578.79, acuerdoNoRem: 24842.09 }
     },
-    "OCTUBRE": {
+    "OCTUBRE 2025": {
         "36hs": { basico: 813137.85, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
         "35hs": { basico: 790550.66, acuerdoRem: 7675.25, acuerdoNoRem: 28982.44 },
         "30hs": { basico: 677614.89, acuerdoRem: 6578.79, acuerdoNoRem: 24842.09 }
     },
-    "NOVIEMBRE": {
+    "NOVIEMBRE 2025": {
         "36hs": { basico: 821032.39, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
         "35hs": { basico: 798225.91, acuerdoRem: 7675.25, acuerdoNoRem: 28982.44 },
         "30hs": { basico: 684193.68, acuerdoRem: 6578.79, acuerdoNoRem: 24842.09 }
     },
-    "DICIEMBRE": {
+    "DICIEMBRE 2025": {
         "36hs": { basico: 828926.93, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51, acuerdoNoRemDic: 45064.86 },
         "35hs": { basico: 805901.16, acuerdoRem: 7675.25, acuerdoNoRem: 28982.44, acuerdoNoRemDic: 43813.06 },
         "30hs": { basico: 690772.47, acuerdoRem: 6578.79, acuerdoNoRem: 24842.09, acuerdoNoRemDic: 37554.05 } 
