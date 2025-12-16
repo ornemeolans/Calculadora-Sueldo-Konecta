@@ -1,6 +1,7 @@
 let miformulario = document.getElementById('formulario_sueldo');
 
-// 1. ESTRUCTURA DE DATOS SALARIALES EXTRAÍDA DEL PDF (Valores verificados)
+// 1. ESTRUCTURA DE DATOS SALARIALES
+// (Claves reescritas manualmente para evitar caracteres ocultos del PDF)
 const ESCALAS_SALARIALES = {
     "JULIO 2025": {
         "36hs": { basico: 789454.22, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
@@ -32,8 +33,6 @@ const ESCALAS_SALARIALES = {
         "35hs": { basico: 805901.16, acuerdoRem: 7675.25, acuerdoNoRem: 28982.44, acuerdoNoRemDic: 43813.06 },
         "30hs": { basico: 690772.47, acuerdoRem: 6578.79, acuerdoNoRem: 24842.09, acuerdoNoRemDic: 37554.05 } 
     },
-    // Nuevos meses del 2026 
-    // MODIFICACIÓN: Se suma acuerdoRem al basico y se pone acuerdoRem en 0
     "ENERO 2026": {
         "36hs": { basico: 836821.47, acuerdoRem: 0, acuerdoNoRem: 29810.51, acuerdoNoRemDic: 45064.86 },
         "35hs": { basico: 813576.41, acuerdoRem: 0, acuerdoNoRem: 28982.44, acuerdoNoRemDic: 43813.06 },
@@ -67,7 +66,6 @@ function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, n
     return tsueldo = tsueldo.toFixed(2);
 }
 
-// Se añade 'mes' y 'extras50' a la firma
 function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100) {
     
     const data = ESCALAS_SALARIALES[mes][contrato];
@@ -87,8 +85,8 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
     let feriados = basico / 30 * cferiado;
     let antiguedad = basico * aantiguedad / 100;
     let nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
-    let extras50_calc = (basico / 24 / 6) * 1.5 * extras50; // Cálculo de Horas Extras al 50%
-    let extras100_calc = (basico / 24 / 6) * 2 * extras100; // Cálculo de Horas Extras al 100%
+    let extras50_calc = (basico / 24 / 6) * 1.5 * extras50;
+    let extras100_calc = (basico / 24 / 6) * 2 * extras100;
 
     let puntualidad, presentismo, dlicencia;
     let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
@@ -160,8 +158,8 @@ function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, a
 
     // Obtener valores base
     const data = ESCALAS_SALARIALES[mes][contrato];
-    let acuerdoBaseNoRem = data.acuerdoNoRem; // Incremento JUNIO 2025
-    let acuerdoBaseNoRemDic = data.acuerdoNoRemDic || 0; // Incremento DICIEMBRE
+    let acuerdoBaseNoRem = data.acuerdoNoRem;
+    let acuerdoBaseNoRemDic = data.acuerdoNoRemDic || 0;
 
     // Lógica para calcular los valores no remunerativos basados en faltas
     if (faltas == 'NO' && tarde == 'NO') {
@@ -171,7 +169,7 @@ function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, a
         aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
 
         if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 10 / 100; // Cálculo de presentismo agregado
+            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 10 / 100;
             ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
             ad2025_PUNTUALIDAD = acuerdoBaseNoRemDic * 0.5 / 100;
             ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
@@ -184,7 +182,7 @@ function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, a
         aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
 
         if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 10 / 100; // Mantiene presentismo
+            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 10 / 100;
             ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
             ad2025_PUNTUALIDAD = 0;
             ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
@@ -197,7 +195,7 @@ function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, a
         aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
 
         if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 6 / 100; // 6% Presentismo
+            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 6 / 100;
             ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
             ad2025_PUNTUALIDAD = acuerdoBaseNoRemDic * 0.5 / 100;
             ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
@@ -217,25 +215,23 @@ function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, a
         }
 
     } else if (faltas == 'SI' && justificadas == 'NO') {
-        // En falta injustificada se pierde presentismo
         aj2025_PRESENTISMO = 0;
         aj2025_ANTIGUEDAD = acuerdoBaseNoRem * aantiguedad / 100;
         aj2025_PUNTUALIDAD = (tarde == 'NO') ? acuerdoBaseNoRem * 0.5 / 100 : 0;
         aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
 
         if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = 0; // Pierde presentismo
+            ad2025_PRESENTISMO = 0;
             ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
             ad2025_PUNTUALIDAD = (tarde == 'NO') ? acuerdoBaseNoRemDic * 0.5 / 100 : 0;
             ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
         }
     }
 
-    // Calcular el total no remunerativo sumando lo nuevo (acuerdoBaseNoRemDic se suma tambien)
+    // Calcular el total no remunerativo
     let total_noremunerativo = acuerdoBaseNoRem + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO + 
                             acuerdoBaseNoRemDic + ad2025_PRESENTISMO + ad2025_ANTIGUEDAD + ad2025_PUNTUALIDAD + ad2025_FERIADO;
 
-    // Retornamos array extendido incluyendo el Acuerdo Base Diciembre y su Presentismo
     return [
         acuerdoBaseNoRem, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, 
         acuerdoBaseNoRemDic, ad2025_PRESENTISMO, ad2025_ANTIGUEDAD, ad2025_PUNTUALIDAD, ad2025_FERIADO, 
@@ -272,11 +268,13 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const mes = document.getElementById('mes').value;
     const contrato = document.getElementById('contrato').value;
     
+    // VALIDACIÓN 1: MES Y CONTRATO
     if (mes === 'Selecciona el Mes' || contrato === 'Contrato de Trabajo') {
         alert('Por favor, selecciona el Mes y el Contrato de Trabajo.');
         return;
     }
     
+    // VALIDACIÓN 2: DATA DISPONIBLE
     if (!ESCALAS_SALARIALES[mes] || !ESCALAS_SALARIALES[mes][contrato]) {
         alert(`Error: No se encontró data salarial para Mes: ${mes} y Contrato: ${contrato}.`);
         return;
@@ -284,11 +282,19 @@ document.getElementById('calcular').addEventListener('click', (e) => {
 
     const faltas = document.getElementById('faltas').value;
     const tarde = document.getElementById('tarde').value;
+    const obrasocial = document.getElementById('obrasocial').value;
+
+    // VALIDACIÓN 3: CAMPOS OBLIGATORIOS (PREVIENE RESULTADOS NaN)
+    if (faltas === 'Tuviste Faltas?' || tarde === 'Tuviste llegadas tarde?' || obrasocial === 'Cual es tu obra social?') {
+        alert('Por favor, responde todas las preguntas: Faltas, Llegadas Tarde y Obra Social.');
+        return;
+    }
+
     const cferiado = parseInt(document.getElementById('feriados').value) || 0;
     const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
-    const extras50 = parseInt(document.getElementById('extras50').value) || 0; // Horas Extras 50%
+    const extras50 = parseInt(document.getElementById('extras50').value) || 0; 
+    const extras100 = parseInt(document.getElementById('extras100').value) || 0;
     const aantiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
-    const obrasocial = document.getElementById('obrasocial').value;
 
     let justificadas, cfaltas;
 
@@ -304,10 +310,10 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         cfaltas = 0;
     }
 
-    // Calcular sueldo (se pasan mes y extras50)
+    // Calcular sueldo
     const tsueldo = sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50, extras100);
 
-    // Generar listas de valores (se pasan mes y extras50)
+    // Generar listas de valores
     const tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100);
     const tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
@@ -363,7 +369,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         { name: "ACUERDO JULIO 2025 PUNTUALIDAD", haberes: 0, no_remunerativo: tnremunerativo[3], descuentos: 0 },
         { name: "ACUERDO JULIO 2025 FERIADO", haberes: 0, no_remunerativo: tnremunerativo[4], descuentos: 0 },
         
-        // NUEVOS ITEMS ACUERDO DICIEMBRE (Indices actualizados con base y presentismo)
+        // NUEVOS ITEMS ACUERDO DICIEMBRE
         { name: "ACUERDO DIC 2025", haberes: 0, no_remunerativo: tnremunerativo[5], descuentos: 0 },
         { name: "ACUERDO DIC 2025 PRESENTISMO", haberes: 0, no_remunerativo: tnremunerativo[6], descuentos: 0 },
         { name: "ACUERDO DIC 2025 ANTIGUEDAD", haberes: 0, no_remunerativo: tnremunerativo[7], descuentos: 0 },
