@@ -370,11 +370,11 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         { name: "ACUERDO JULIO 2025 FERIADO", haberes: 0, no_remunerativo: tnremunerativo[4], descuentos: 0 },
         
         // NUEVOS ITEMS ACUERDO DICIEMBRE
-        { name: "ACUERDO DIC 2025", haberes: 0, no_remunerativo: tnremunerativo[5], descuentos: 0 },
-        { name: "ACUERDO DIC 2025 PRESENTISMO", haberes: 0, no_remunerativo: tnremunerativo[6], descuentos: 0 },
-        { name: "ACUERDO DIC 2025 ANTIGUEDAD", haberes: 0, no_remunerativo: tnremunerativo[7], descuentos: 0 },
-        { name: "ACUERDO DIC 2025 PUNTUALIDAD", haberes: 0, no_remunerativo: tnremunerativo[8], descuentos: 0 },
-        { name: "ACUERDO DIC 2025 FERIADO", haberes: 0, no_remunerativo: tnremunerativo[9], descuentos: 0 },
+        { name: "ACUERDO DICIEMBRE 2025", haberes: 0, no_remunerativo: tnremunerativo[5], descuentos: 0 },
+        { name: "ACUERDO DICIEMBRE 2025 PRESENTISMO", haberes: 0, no_remunerativo: tnremunerativo[6], descuentos: 0 },
+        { name: "ACUERDO DICIEMBRE 2025 ANTIGUEDAD", haberes: 0, no_remunerativo: tnremunerativo[7], descuentos: 0 },
+        { name: "ACUERDO DICIEMBRE 2025 PUNTUALIDAD", haberes: 0, no_remunerativo: tnremunerativo[8], descuentos: 0 },
+        { name: "ACUERDO DICIEMBRE 2025 FERIADO", haberes: 0, no_remunerativo: tnremunerativo[9], descuentos: 0 },
 
         // Descuentos
         { name: "APORTE SIJP SOBRE SUELDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[0] },
