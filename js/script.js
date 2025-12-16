@@ -67,7 +67,8 @@ function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, n
     return tsueldo = tsueldo.toFixed(2);
 }
 
-function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100) {
+// Se añade 'mes' y 'extras50' a la firma
+function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50) {
     
     const data = ESCALAS_SALARIALES[mes][contrato];
     
@@ -86,8 +87,7 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
     let feriados = basico / 30 * cferiado;
     let antiguedad = basico * aantiguedad / 100;
     let nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
-    let extras50_calc = (basico / 24 / 6) * 1.5 * extras50;
-    let extras100_calc = (basico / 24/ 6) * 2 * extras100;
+    let extras50_calc = (basico / 24 / 6) * 1.5 * extras50; // Cálculo de Horas Extras al 50%
 
     let puntualidad, presentismo, dlicencia;
     let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
@@ -285,8 +285,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const tarde = document.getElementById('tarde').value;
     const cferiado = parseInt(document.getElementById('feriados').value) || 0;
     const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
-    const extras50 = parseInt(document.getElementById('extras50').value) || 0; 
-    const extras100 = parseInt(document.getElementById('extras100').value) || 0; 
+    const extras50 = parseInt(document.getElementById('extras50').value) || 0; // Horas Extras 50%
     const aantiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
     const obrasocial = document.getElementById('obrasocial').value;
 
@@ -304,9 +303,11 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         cfaltas = 0;
     }
 
-    const tsueldo = sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50, extras100);
+    // Calcular sueldo (se pasan mes y extras50)
+    const tsueldo = sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50);
 
-    const tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100);
+    // Generar listas de valores (se pasan mes y extras50)
+    const tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50);
     const tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
     const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
 
