@@ -55,6 +55,18 @@
                 <label for="cfaltas" class="form-label">Cantidad de días de ausencia</label>
                 <input type="number" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
             </div>
+
+            <div class="form-check mt-2 mb-2">
+                <input class="form-check-input" type="checkbox" id="vacaciones_check">
+                <label class="form-check-label" for="vacaciones_check" style="font-weight: 600; color: #4361ee;">
+                    ¿Te tomaste vacaciones este mes?
+                </label>
+            </div>
+            <div id="vacaciones-container" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #4361ee;">
+                <label for="cvacaciones" class="form-label">Cantidad de días de vacaciones</label>
+                <input type="number" class="form-control" id="cvacaciones" placeholder="Ingresa los días">
+            </div>
+
             <select class="form-select" id="tarde">
                 <option selected translate="no">Tuviste llegadas tarde?</option>
                 <option translate="no">SI</option>
@@ -75,14 +87,11 @@
                 <option translate="no">GEA</option>
                 <option translate="no">OTRA</option>
             </select>
-            <button href="#" type="submit" class="btn btn-primary" id="calcular">Calcular</button>
+            <button type="submit" class="btn btn-primary" id="calcular">Calcular</button>
             <button type="button" class="btn btn-secondary" id="limpiar">Reset</button>
         </form>
     </main>
-
     <script src="./js/script.js"></script>
-
     <footer> © Ornella Meolans</footer>
 </body>
-
 </html>

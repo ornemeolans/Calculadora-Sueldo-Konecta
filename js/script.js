@@ -1,7 +1,5 @@
 let miformulario = document.getElementById('formulario_sueldo');
 
-// 1. ESTRUCTURA DE DATOS SALARIALES
-// (Claves reescritas manualmente para evitar caracteres ocultos del PDF)
 const ESCALAS_SALARIALES = {
     "JULIO 2025": {
         "36hs": { basico: 789454.22, acuerdoRem: 7894.54, acuerdoNoRem: 29810.51 },
@@ -50,406 +48,160 @@ const ESCALAS_SALARIALES = {
     }
 };
 
-function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50, extras100) {
-    
-    if (!ESCALAS_SALARIALES[mes] || !ESCALAS_SALARIALES[mes][contrato]) {
-        console.error(`Error: Data no disponible para Mes: ${mes} y Contrato: ${contrato}`);
-        return 0; 
-    }
-    
-    let tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100);
-    let tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
-    let tdescuento = descuentos(tremunerativo, tnremunerativo, obrasocial);
-    
-    let tsueldo = tremunerativo[tremunerativo.length - 1] + tnremunerativo[tnremunerativo.length - 1] - tdescuento[tdescuento.length - 1];
-    
-    return tsueldo = tsueldo.toFixed(2);
+function sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50, extras100, cvacaciones) {
+    if (!ESCALAS_SALARIALES[mes] || !ESCALAS_SALARIALES[mes][contrato]) return 0;
+    let trem = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100, cvacaciones);
+    let tnrem = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
+    let tdesc = descuentos(trem, tnrem, obrasocial);
+    let total = trem[trem.length - 1] + tnrem[tnrem.length - 1] - tdesc[tdesc.length - 1];
+    return total.toFixed(2);
 }
 
-function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100) {
-    
+function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100, cvacaciones = 0) {
     const data = ESCALAS_SALARIALES[mes][contrato];
-    
-    let basico_base = data.basico;
+    const basico_escala = data.basico;
     let acuerdoBaseRem = data.acuerdoRem; 
-    let basico;
 
-    // Calcular el básico con o sin faltas
-    if (faltas == 'SI') {
-        basico = (basico_base / 30) * (30 - cfaltas);
-    } else {
-        basico = basico_base;
-    }
+    // Cálculo Vacaciones y Básico Ajustado
+    let vacaciones_haberes = (basico_escala / 25) * cvacaciones;
+    let basico_recibo = (basico_escala / 30) * (30 - cfaltas - cvacaciones);
 
-    // Calcular adicionales
-    let feriados = basico / 30 * cferiado;
-    let antiguedad = basico * aantiguedad / 100;
-    let nocturnasAdicional = ((basico / 24) / 6 * 0.1311) * nocturnas;
-    let extras50_calc = (basico / 24 / 6) * 1.5 * extras50;
-    let extras100_calc = (basico / 24 / 6) * 2 * extras100;
+    // Adicionales sobre el básico de escala (sin descuentos)
+    let feriados = basico_escala / 30 * cferiado;
+    let antiguedad = basico_escala * aantiguedad / 100;
+    let nocturnasAdicional = ((basico_escala / 24) / 6 * 0.1311) * nocturnas;
+    let extras50_calc = (basico_escala / 24 / 6) * 1.5 * extras50;
+    let extras100_calc = (basico_escala / 24 / 6) * 2 * extras100;
+
+    // Base Presentismo excluye monto de vacaciones gozadas
+    let base_presentismo = basico_recibo + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc;
 
     let puntualidad, presentismo, dlicencia;
-    let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
+    let aj2025_PRES, aj2025_ANT, aj2025_PUNT, aj2025_FER;
 
-    // Lógica de Presentismo y Puntualidad
     if (faltas == 'NO' && tarde == 'NO') {
-        puntualidad = basico * 0.5 / 100;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc+ puntualidad) * 10 / 100;
+        puntualidad = base_presentismo * 0.5 / 100;
+        presentismo = (base_presentismo + puntualidad) * 10 / 100;
         dlicencia = 0;
-        aj2025_PRESENTISMO = acuerdoBaseRem * 10 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = acuerdoBaseRem * 0.5 / 100;
-        aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
+        aj2025_PRES = acuerdoBaseRem * 10 / 100;
+        aj2025_ANT = acuerdoBaseRem * aantiguedad / 100;
+        aj2025_PUNT = acuerdoBaseRem * 0.5 / 100;
     } else if (faltas == 'NO' && tarde == 'SI') {
         puntualidad = 0;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + puntualidad) * 10 / 100;
+        presentismo = base_presentismo * 10 / 100;
         dlicencia = 0;
-        aj2025_PRESENTISMO = acuerdoBaseRem * 10 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = 0;
-        aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
-        puntualidad = basico * 0.5 / 100;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + puntualidad) * 6 / 100;
-        dlicencia = basico / 30 * cfaltas;
-        aj2025_PRESENTISMO = acuerdoBaseRem * 6 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = acuerdoBaseRem * 0.5 / 100;
-        aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
-        puntualidad = 0;
-        presentismo = (basico + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + puntualidad) * 6 / 100;
-        dlicencia = basico / 30 * cfaltas;
-        aj2025_PRESENTISMO = acuerdoBaseRem * 6 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = 0;
-        aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
-    } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'NO') {
-        puntualidad = basico * 0.5 / 100;
+        aj2025_PRES = acuerdoBaseRem * 10 / 100;
+        aj2025_ANT = acuerdoBaseRem * aantiguedad / 100;
+        aj2025_PUNT = 0;
+    } else if (faltas == 'SI' && justificadas == 'SI') {
+        puntualidad = (tarde == 'NO') ? base_presentismo * 0.5 / 100 : 0;
+        presentismo = (base_presentismo + puntualidad) * 6 / 100;
+        dlicencia = (basico_escala / 30) * cfaltas;
+        aj2025_PRES = acuerdoBaseRem * 6 / 100;
+        aj2025_ANT = acuerdoBaseRem * aantiguedad / 100;
+        aj2025_PUNT = (puntualidad > 0) ? acuerdoBaseRem * 0.5 / 100 : 0;
+    } else {
+        puntualidad = (tarde == 'NO') ? base_presentismo * 0.5 / 100 : 0;
         presentismo = 0;
         dlicencia = 0;
-        aj2025_PRESENTISMO = 0;
-        aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = acuerdoBaseRem * 0.5 / 100;
-        aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
-    } else if (faltas == 'SI' && justificadas == 'NO' && tarde == 'SI') {
-        puntualidad = 0;
-        presentismo = 0;
-        dlicencia = 0;
-        aj2025_PRESENTISMO = 0;
-        aj2025_ANTIGUEDAD = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = acuerdoBaseRem * 0.5 / 100;
-        aj2025_FERIADO = acuerdoBaseRem / 30 * cferiado;
+        aj2025_PRES = 0;
+        aj2025_ANT = acuerdoBaseRem * aantiguedad / 100;
+        aj2025_PUNT = (puntualidad > 0) ? acuerdoBaseRem * 0.5 / 100 : 0;
     }
+    aj2025_FER = acuerdoBaseRem / 30 * cferiado;
     
-    // Total Remunerativo
-    let total_remunerativo = basico + feriados + antiguedad + nocturnasAdicional + puntualidad + presentismo + dlicencia + acuerdoBaseRem + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO + extras50_calc + extras100_calc;
+    let total_rem = base_presentismo + vacaciones_haberes + puntualidad + presentismo + dlicencia + acuerdoBaseRem + aj2025_PRES + aj2025_ANT + aj2025_PUNT + aj2025_FER;
     
-    return [
-        basico, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, extras50_calc, extras100_calc,
-        acuerdoBaseRem, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, total_remunerativo
-    ];
+    return [basico_recibo, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, extras50_calc, extras100_calc, acuerdoBaseRem, aj2025_PRES, aj2025_ANT, aj2025_PUNT, aj2025_FER, vacaciones_haberes, total_rem];
 }
 
 function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad) {
-    let aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO;
-    // NUEVAS VARIABLES PARA DICIEMBRE Y 2026
-    let ad2025_PRESENTISMO = 0, ad2025_ANTIGUEDAD = 0, ad2025_PUNTUALIDAD = 0, ad2025_FERIADO = 0;
-
-    // Obtener valores base
     const data = ESCALAS_SALARIALES[mes][contrato];
-    let acuerdoBaseNoRem = data.acuerdoNoRem;
-    let acuerdoBaseNoRemDic = data.acuerdoNoRemDic || 0;
-
-    // Lógica para calcular los valores no remunerativos basados en faltas
-    if (faltas == 'NO' && tarde == 'NO') {
-        aj2025_PRESENTISMO = acuerdoBaseNoRem * 10 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseNoRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = acuerdoBaseNoRem * 0.5 / 100;
-        aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
-
-        if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 10 / 100;
-            ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
-            ad2025_PUNTUALIDAD = acuerdoBaseNoRemDic * 0.5 / 100;
-            ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
-        }
-
-    } else if (faltas == 'NO' && tarde == 'SI') {
-        aj2025_PRESENTISMO = acuerdoBaseNoRem * 10 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseNoRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = 0;
-        aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
-
-        if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 10 / 100;
-            ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
-            ad2025_PUNTUALIDAD = 0;
-            ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
-        }
-
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'NO') {
-        aj2025_PRESENTISMO = acuerdoBaseNoRem * 6 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseNoRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = acuerdoBaseNoRem * 0.5 / 100;
-        aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
-
-        if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 6 / 100;
-            ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
-            ad2025_PUNTUALIDAD = acuerdoBaseNoRemDic * 0.5 / 100;
-            ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
-        }
-
-    } else if (faltas == 'SI' && justificadas == 'SI' && tarde == 'SI') {
-        aj2025_PRESENTISMO = acuerdoBaseNoRem * 6 / 100;
-        aj2025_ANTIGUEDAD = acuerdoBaseNoRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = 0;
-        aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
-
-        if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = acuerdoBaseNoRemDic * 6 / 100;
-            ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
-            ad2025_PUNTUALIDAD = 0;
-            ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
-        }
-
-    } else if (faltas == 'SI' && justificadas == 'NO') {
-        aj2025_PRESENTISMO = 0;
-        aj2025_ANTIGUEDAD = acuerdoBaseNoRem * aantiguedad / 100;
-        aj2025_PUNTUALIDAD = (tarde == 'NO') ? acuerdoBaseNoRem * 0.5 / 100 : 0;
-        aj2025_FERIADO = acuerdoBaseNoRem / 30 * cferiado;
-
-        if (acuerdoBaseNoRemDic > 0) {
-            ad2025_PRESENTISMO = 0;
-            ad2025_ANTIGUEDAD = acuerdoBaseNoRemDic * aantiguedad / 100;
-            ad2025_PUNTUALIDAD = (tarde == 'NO') ? acuerdoBaseNoRemDic * 0.5 / 100 : 0;
-            ad2025_FERIADO = acuerdoBaseNoRemDic / 30 * cferiado;
-        }
-    }
-
-    // Calcular el total no remunerativo
-    let total_noremunerativo = acuerdoBaseNoRem + aj2025_PRESENTISMO + aj2025_ANTIGUEDAD + aj2025_PUNTUALIDAD + aj2025_FERIADO + 
-                            acuerdoBaseNoRemDic + ad2025_PRESENTISMO + ad2025_ANTIGUEDAD + ad2025_PUNTUALIDAD + ad2025_FERIADO;
-
-    return [
-        acuerdoBaseNoRem, aj2025_PRESENTISMO, aj2025_ANTIGUEDAD, aj2025_PUNTUALIDAD, aj2025_FERIADO, 
-        acuerdoBaseNoRemDic, ad2025_PRESENTISMO, ad2025_ANTIGUEDAD, ad2025_PUNTUALIDAD, ad2025_FERIADO, 
-        total_noremunerativo
-    ];
+    let acuNoRem = data.acuerdoNoRem, acuNoRemDic = data.acuerdoNoRemDic || 0;
+    let percPres = (faltas == 'NO') ? 0.10 : (justificadas == 'SI' ? 0.06 : 0);
+    let aj_PRES = acuNoRem * percPres, aj_ANT = acuNoRem * aantiguedad / 100, aj_PUNT = (tarde == 'NO') ? acuNoRem * 0.5 / 100 : 0, aj_FER = acuNoRem / 30 * cferiado;
+    let ad_PRES = acuNoRemDic * percPres, ad_ANT = acuNoRemDic * aantiguedad / 100, ad_PUNT = (tarde == 'NO') ? acuNoRemDic * 0.5 / 100 : 0, ad_FER = acuNoRemDic / 30 * cferiado;
+    let total_nr = acuNoRem + aj_PRES + aj_ANT + aj_PUNT + aj_FER + acuNoRemDic + ad_PRES + ad_ANT + ad_PUNT + ad_FER;
+    return [acuNoRem, aj_PRES, aj_ANT, aj_PUNT, aj_FER, acuNoRemDic, ad_PRES, ad_ANT, ad_PUNT, ad_FER, total_nr];
 }
 
-function descuentos(tremunerativo, tnremunerativo, obrasocial) {
-    let APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO;
-    
-    const total_remunerativo = tremunerativo[tremunerativo.length - 1];
-    const total_noremunerativo = tnremunerativo[tnremunerativo.length - 1]; 
-
-    APORTE_SIJP_SOBRE_SUELDO = total_remunerativo * 11 / 100;
-    APORTE_INSSJP_SOBRE_SUELDO = total_remunerativo * 3 / 100;
-    APORTE_O_SOC_SOBRE_SUELDO = total_remunerativo * 3 / 100;
-    CTT_S_FALLECIMIENTO = total_remunerativo * 0.59 / 100;
-    CTT_688_14 = (total_remunerativo + total_noremunerativo) * 1.5 / 100;
-
-    if (obrasocial == 'GEA') {
-        APORTE_O_SOC_ACUERDO = total_remunerativo * 1.30 / 100;
-    } else {
-        APORTE_O_SOC_ACUERDO = 0;
-    }
-
-    let total_descuentos = APORTE_SIJP_SOBRE_SUELDO + APORTE_INSSJP_SOBRE_SUELDO + APORTE_O_SOC_SOBRE_SUELDO + CTT_S_FALLECIMIENTO + CTT_688_14 + APORTE_O_SOC_ACUERDO;
-
-    return [APORTE_SIJP_SOBRE_SUELDO, APORTE_INSSJP_SOBRE_SUELDO, APORTE_O_SOC_SOBRE_SUELDO, CTT_S_FALLECIMIENTO, CTT_688_14, APORTE_O_SOC_ACUERDO, total_descuentos];
+function descuentos(trem, tnrem, obrasocial) {
+    const t_rem = trem[trem.length - 1], t_nr = tnrem[tnrem.length - 1]; 
+    let s = t_rem * 0.11, i = t_rem * 0.03, o = t_rem * 0.03, f = t_rem * 0.0059, c = (t_rem + t_nr) * 1.5 / 100, oa = (obrasocial == 'GEA') ? t_rem * 1.30 / 100 : 0;
+    return [s, i, o, f, c, oa, s+i+o+f+c+oa];
 }
 
 document.getElementById('calcular').addEventListener('click', (e) => {
     e.preventDefault();
+    const mes = document.getElementById('mes').value, contrato = document.getElementById('contrato').value;
+    if (mes.includes('Selecciona') || contrato.includes('Contrato')) { alert('Selecciona Mes y Contrato'); return; }
 
-    const mes = document.getElementById('mes').value;
-    const contrato = document.getElementById('contrato').value;
-    
-    // VALIDACIÓN 1: MES Y CONTRATO
-    if (mes === 'Selecciona el Mes' || contrato === 'Contrato de Trabajo') {
-        alert('Por favor, selecciona el Mes y el Contrato de Trabajo.');
-        return;
-    }
-    
-    // VALIDACIÓN 2: DATA DISPONIBLE
-    if (!ESCALAS_SALARIALES[mes] || !ESCALAS_SALARIALES[mes][contrato]) {
-        alert(`Error: No se encontró data salarial para Mes: ${mes} y Contrato: ${contrato}.`);
-        return;
-    }
+    const faltas = document.getElementById('faltas').value, tarde = document.getElementById('tarde').value, obrasocial = document.getElementById('obrasocial').value;
+    const cvac = document.getElementById('vacaciones_check').checked ? parseInt(document.getElementById('cvacaciones').value) || 0 : 0;
+    const cf = (faltas === 'SI') ? parseInt(document.getElementById('cfaltas').value) || 0 : 0;
+    const jus = (faltas === 'SI') ? document.getElementById('justificadas').value : 'NO';
 
-    const faltas = document.getElementById('faltas').value;
-    const tarde = document.getElementById('tarde').value;
-    const obrasocial = document.getElementById('obrasocial').value;
+    const trem = remunerativo(mes, contrato, tarde, faltas, jus, cf, parseInt(document.getElementById('feriados').value)||0, parseInt(document.getElementById('nocturnas').value)||0, parseInt(document.getElementById('antiguedad').value)||0, parseInt(document.getElementById('extras50').value)||0, parseInt(document.getElementById('extras100').value)||0, cvac);
+    const tnr = no_remunerativo(mes, contrato, tarde, faltas, jus, parseInt(document.getElementById('feriados').value)||0, parseInt(document.getElementById('antiguedad').value)||0);
+    const td = descuentos(trem, tnr, obrasocial);
 
-    // VALIDACIÓN 3: CAMPOS OBLIGATORIOS (PREVIENE RESULTADOS NaN)
-    if (faltas === 'Tuviste Faltas?' || tarde === 'Tuviste llegadas tarde?' || obrasocial === 'Cual es tu obra social?') {
-        alert('Por favor, responde todas las preguntas: Faltas, Llegadas Tarde y Obra Social.');
-        return;
-    }
+    const main = document.querySelector('main');
+    document.querySelectorAll('table, p.mes-titulo, #resultado-container').forEach(el => el.remove());
 
-    const cferiado = parseInt(document.getElementById('feriados').value) || 0;
-    const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
-    const extras50 = parseInt(document.getElementById('extras50').value) || 0; 
-    const extras100 = parseInt(document.getElementById('extras100').value) || 0;
-    const aantiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
+    const t = document.createElement("p"); t.className = "mes-titulo"; t.innerHTML = `<h3>${mes}</h3>`; main.append(t);
+    const tab = document.createElement('table'); tab.className = 'table table-bordered';
+    tab.innerHTML = `<thead><tr><th>Conceptos</th><th>Haberes</th><th>No Remunerativo</th><th>Descuentos</th></tr></thead>`;
+    const b = document.createElement('tbody');
 
-    let justificadas, cfaltas;
-
-    if (faltas === 'SI') {
-        justificadas = document.getElementById('justificadas').value;
-        cfaltas = parseInt(document.getElementById('cfaltas').value) || 0;
-        if (justificadas === 'Fueron Justificadas?') {
-            alert('Por favor, selecciona si las faltas fueron justificadas.');
-            return;
-        }
-    } else {
-        justificadas = 'NO';
-        cfaltas = 0;
-    }
-
-    // Calcular sueldo
-    const tsueldo = sueldo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, obrasocial, extras50, extras100);
-
-    // Generar listas de valores
-    const tremunerativo = remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100);
-    const tnremunerativo = no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad);
-    const tdescuentos = descuentos(tremunerativo, tnremunerativo, obrasocial);
-
-    const mainContainer = document.querySelector('main');
-
-    const tablaExistente = document.querySelector('table');
-    if (tablaExistente) { tablaExistente.remove(); }
-    const tituloExistente = document.querySelector('p');
-    if (tituloExistente) { tituloExistente.remove(); }
-    const contenedorExistente = document.getElementById('resultado-container');
-    if (contenedorExistente) { contenedorExistente.remove(); }
-
-    const titulo = document.createElement("p");
-    titulo.innerHTML = `<h3>${mes}</h3>`;
-    mainContainer.append(titulo);
-
-    const tabla = document.createElement('table');
-    tabla.className = 'table table-bordered';
-    const encabezado = document.createElement('thead');
-    const filaEncabezado = document.createElement('tr');
-    ['Conceptos', 'Haberes', 'No Remunerativo', 'Descuentos'].forEach(texto => {
-        const th = document.createElement('th');
-        th.innerText = texto;
-        filaEncabezado.appendChild(th);
-    });
-    encabezado.appendChild(filaEncabezado);
-    tabla.appendChild(encabezado);
-    const cuerpo = document.createElement('tbody');
-
-    // Definir los conceptos.
     const lineItems = [
-        // Haberes
-        { name: "BASICO", haberes: tremunerativo[0], no_remunerativo: 0, descuentos: 0 },
-        { name: "FERIADO", haberes: tremunerativo[1], no_remunerativo: 0, descuentos: 0 },
-        { name: "PRESENTISMO", haberes: tremunerativo[2], no_remunerativo: 0, descuentos: 0 },
-        { name: "ANTIGUEDAD", haberes: tremunerativo[3], no_remunerativo: 0, descuentos: 0 },
-        { name: "PUNTUALIDAD", haberes: tremunerativo[4], no_remunerativo: 0, descuentos: 0 },
-        { name: "DIAS DE LICENCIA", haberes: tremunerativo[5], no_remunerativo: 0, descuentos: 0 },
-        { name: "ADICIONAL HORA NOCTURNA", haberes: tremunerativo[6], no_remunerativo: 0, descuentos: 0 },
-        { name: "HORAS EXTRAS 50%", haberes: tremunerativo[7], no_remunerativo: 0, descuentos: 0 },
-        { name: "HORAS EXTRAS 100%", haberes: tremunerativo[8], no_remunerativo: 0, descuentos: 0},
-        { name: "ACUERDO JUNIO 2025", haberes: tremunerativo[9], no_remunerativo: 0, descuentos: 0 },
-        { name: "ACUERDO JUNIO 2025 PRESENTISMO", haberes: tremunerativo[10], no_remunerativo: 0, descuentos: 0 },
-        { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: tremunerativo[11], no_remunerativo: 0, descuentos: 0 },
-        { name: "ACUERDO JUNIO 2025 PUNTUALIDAD", haberes: tremunerativo[12], no_remunerativo: 0, descuentos: 0 },
-        { name: "ACUERDO JUNIO 2025 FERIADO", haberes: tremunerativo[13], no_remunerativo: 0, descuentos: 0 },
-
-        // No Remunerativos
-        { name: "ACUERDO JULIO 2025", haberes: 0, no_remunerativo: tnremunerativo[0], descuentos: 0 },
-        { name: "ACUERDO JULIO 2025 PRESENTISMO", haberes: 0, no_remunerativo: tnremunerativo[1], descuentos: 0 },
-        { name: "ACUERDO JULIO 2025 ANTIGUEDAD", haberes: 0, no_remunerativo: tnremunerativo[2], descuentos: 0 },
-        { name: "ACUERDO JULIO 2025 PUNTUALIDAD", haberes: 0, no_remunerativo: tnremunerativo[3], descuentos: 0 },
-        { name: "ACUERDO JULIO 2025 FERIADO", haberes: 0, no_remunerativo: tnremunerativo[4], descuentos: 0 },
-        
-        // NUEVOS ITEMS ACUERDO DICIEMBRE
-        { name: "ACUERDO DICIEMBRE 2025", haberes: 0, no_remunerativo: tnremunerativo[5], descuentos: 0 },
-        { name: "ACUERDO DICIEMBRE 2025 PRESENTISMO", haberes: 0, no_remunerativo: tnremunerativo[6], descuentos: 0 },
-        { name: "ACUERDO DICIEMBRE 2025 ANTIGUEDAD", haberes: 0, no_remunerativo: tnremunerativo[7], descuentos: 0 },
-        { name: "ACUERDO DICIEMBRE 2025 PUNTUALIDAD", haberes: 0, no_remunerativo: tnremunerativo[8], descuentos: 0 },
-        { name: "ACUERDO DICIEMBRE 2025 FERIADO", haberes: 0, no_remunerativo: tnremunerativo[9], descuentos: 0 },
-
-        // Descuentos
-        { name: "APORTE SIJP SOBRE SUELDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[0] },
-        { name: "APORTE INSSJP SOBRE SUELDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[1] },
-        { name: "APORTE O. SOC SOBRE SUELDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[2] },
-        { name: "CTT S FALLECIMIENTO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[3] },
-        { name: "CTT 688/14", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[4] },
-        { name: "APORTE O. SOCIAL ACUERDO", haberes: 0, no_remunerativo: 0, descuentos: tdescuentos[5] },
+        { name: "BASICO", haberes: trem[0] },
+        { name: "VACACIONES GOZADAS", haberes: trem[14] },
+        { name: "FERIADO", haberes: trem[1] },
+        { name: "PRESENTISMO", haberes: trem[2] },
+        { name: "ANTIGUEDAD", haberes: trem[3] },
+        { name: "PUNTUALIDAD", haberes: trem[4] },
+        { name: "DIAS DE LICENCIA", haberes: trem[5] },
+        { name: "ADICIONAL HORA NOCTURNA", haberes: trem[6] },
+        { name: "HORAS EXTRAS 50%", haberes: trem[7] },
+        { name: "HORAS EXTRAS 100%", haberes: trem[8] },
+        { name: "ACUERDO JUNIO 2025", haberes: trem[9] },
+        { name: "ACUERDO JUNIO 2025 PRESENTISMO", haberes: trem[10] },
+        { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: trem[11] },
+        { name: "ACUERDO JUNIO 2025 PUNTUALIDAD", haberes: trem[12] },
+        { name: "ACUERDO JUNIO 2025 FERIADO", haberes: trem[13] },
+        { name: "ACUERDO JULIO 2025", no_remunerativo: tnr[0] },
+        { name: "ACUERDO JULIO 2025 PRESENTISMO", no_remunerativo: tnr[1] },
+        { name: "ACUERDO JULIO 2025 ANTIGUEDAD", no_remunerativo: tnr[2] },
+        { name: "ACUERDO JULIO 2025 PUNTUALIDAD", no_remunerativo: tnr[3] },
+        { name: "ACUERDO JULIO 2025 FERIADO", no_remunerativo: tnr[4] },
+        { name: "ACUERDO DICIEMBRE 2025", no_remunerativo: tnr[5] },
+        { name: "ACUERDO DICIEMBRE 2025 PRESENTISMO", no_remunerativo: tnr[6] },
+        { name: "ACUERDO DICIEMBRE 2025 ANTIGUEDAD", no_remunerativo: tnr[7] },
+        { name: "ACUERDO DICIEMBRE 2025 PUNTUALIDAD", no_remunerativo: tnr[8] },
+        { name: "ACUERDO DICIEMBRE 2025 FERIADO", no_remunerativo: tnr[9] },
+        { name: "APORTE SIJP SOBRE SUELDO", descuentos: td[0] },
+        { name: "APORTE INSSJP SOBRE SUELDO", descuentos: td[1] },
+        { name: "APORTE O. SOC SOBRE SUELDO", descuentos: td[2] },
+        { name: "CTT S FALLECIMIENTO", descuentos: td[3] },
+        { name: "CTT 688/14", descuentos: td[4] },
+        { name: "APORTE O. SOCIAL ACUERDO", descuentos: td[5] }
     ];
 
-    for (const item of lineItems) {
-        if (item.haberes === 0 && item.no_remunerativo === 0 && item.descuentos === 0) {
-            continue; 
+    lineItems.forEach(i => {
+        if ((i.haberes||0) + (i.no_remunerativo||0) + (i.descuentos||0) > 0) {
+            b.innerHTML += `<tr><td>${i.name}</td><td>${i.haberes ? i.haberes.toFixed(2) : ''}</td><td>${i.no_remunerativo ? i.no_remunerativo.toFixed(2) : ''}</td><td>${i.descuentos ? i.descuentos.toFixed(2) : ''}</td></tr>`;
         }
-
-        const fila = document.createElement('tr');
-        const celdaConcepto = document.createElement('td');
-        celdaConcepto.innerText = item.name;
-        const celdaHaberes = document.createElement('td');
-        celdaHaberes.innerText = item.haberes > 0 ? item.haberes.toFixed(2) : '';
-        const celdaNoRemunerativo = document.createElement('td');
-        celdaNoRemunerativo.innerText = item.no_remunerativo > 0 ? item.no_remunerativo.toFixed(2) : '';
-        const celdaDescuentos = document.createElement('td');
-        celdaDescuentos.innerText = item.descuentos > 0 ? item.descuentos.toFixed(2) : '';
-
-        fila.appendChild(celdaConcepto);
-        fila.appendChild(celdaHaberes);
-        fila.appendChild(celdaNoRemunerativo);
-        fila.appendChild(celdaDescuentos);
-        cuerpo.appendChild(fila);
-    }
-    
-    const filaFinal = document.createElement('tr');
-    const celdaFinal1 = document.createElement('td');
-    celdaFinal1.innerText = 'TOTALES'; 
-    const celdaFinal2 = document.createElement('td');
-    celdaFinal2.innerText = tremunerativo[tremunerativo.length - 1].toFixed(2); 
-    const celdaFinal3 = document.createElement('td');
-    celdaFinal3.innerText = tnremunerativo[tnremunerativo.length - 1].toFixed(2); 
-    const celdaFinal4 = document.createElement('td');
-    celdaFinal4.innerText = tdescuentos[tdescuentos.length - 1].toFixed(2); 
-
-    filaFinal.appendChild(celdaFinal1);
-    filaFinal.appendChild(celdaFinal2);
-    filaFinal.appendChild(celdaFinal3);
-    filaFinal.appendChild(celdaFinal4);
-    cuerpo.appendChild(filaFinal);
-
-    tabla.appendChild(cuerpo);
-    mainContainer.appendChild(tabla);
-
-    const contenedor = document.createElement("div");
-    contenedor.id = "resultado-container";
-    contenedor.innerHTML = `<h3>Total a cobrar:</h3>
-                            <p>${tsueldo}</p> 
-                            <p>Aclaración: Este valor no es exacto, es una aproximación</p>`;
-    mainContainer.appendChild(contenedor);
+    });
+    b.innerHTML += `<tr style="font-weight:bold;"><td>TOTALES</td><td>${trem[15].toFixed(2)}</td><td>${tnr[10].toFixed(2)}</td><td>${td[6].toFixed(2)}</td></tr>`;
+    tab.appendChild(b); main.appendChild(tab);
+    const res = document.createElement("div"); res.id = "resultado-container";
+    res.innerHTML = `<h3>Total a cobrar:</h3><p>${(trem[15]+tnr[10]-td[6]).toFixed(2)}</p>`;
+    main.append(res);
 });
 
-const faltasContainer = document.getElementById('faltas-container');
-const faltasSelect = document.getElementById('faltas');
-
-function actualizarFaltasContainer() {
-    if (faltasSelect.value === 'SI') {
-        faltasContainer.style.display = 'flex'; 
-    } else {
-        faltasContainer.style.display = 'none'; 
-    }
-}
-
+const faltasContainer = document.getElementById('faltas-container'), faltasSelect = document.getElementById('faltas');
+function actualizarFaltasContainer() { faltasContainer.style.display = (faltasSelect.value === 'SI') ? 'block' : 'none'; }
 faltasSelect.addEventListener('change', actualizarFaltasContainer);
-
-document.getElementById('limpiar').addEventListener('click', () => {
-    miformulario.reset(); 
-    actualizarFaltasContainer();
-});
-
+document.getElementById('vacaciones_check').addEventListener('change', function() { document.getElementById('vacaciones-container').style.display = this.checked ? 'block' : 'none'; });
+document.getElementById('limpiar').addEventListener('click', () => { miformulario.reset(); actualizarFaltasContainer(); document.getElementById('vacaciones-container').style.display = 'none'; });
 actualizarFaltasContainer();
