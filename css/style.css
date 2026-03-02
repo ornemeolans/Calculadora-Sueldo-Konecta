@@ -1,235 +1,111 @@
 :root {
     --primary: #4361ee;
-    --secondary: #3f37c9;
-    --accent: #4cc9f0;
     --light: #f8f9fa;
-    --dark: #212529;
-    --success: #4bb543;
-    --warning: #ffc107;
-    --danger: #dc3545;
-    --gradient: linear-gradient(135deg, #4361ee, #3a0ca3);
+    --bg-body: linear-gradient(135deg, #4361ee, #3a0ca3);
+    --bg-card: #ffffff;
+    --text-main: #212529;
+    --input-border: #dee2e6;
+    --shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+[data-theme="dark"] {
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --text-main: #e0e0e0;
+    --input-border: #333;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --light: #2a2a2a;
 }
-
-/* ---------------------------------------------------- */
-/* --- CONTENEDOR PRINCIPAL Y BODY (Mobile First) --- */
-/* ---------------------------------------------------- */
 
 body {
-    font-family: "Nunito", serif;
-    background: var(--gradient);
-    color: var(--dark);
+    font-family: "Nunito", sans-serif;
+    background: var(--bg-body);
+    color: var(--text-main);
     min-height: 100vh;
-    padding: 10px; 
-    /* AJUSTE CLAVE: Habilita Flexbox para controlar la altura */
-    display: flex; 
-    flex-direction: column; 
+    padding: 20px;
+    transition: background 0.3s ease;
 }
 
 .main-container {
     width: 100%;
+    max-width: 850px;
     margin: 0 auto;
-    background-color: white;
-    border-radius: 15px; 
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    background-color: var(--bg-card);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    /* CAMBIO CLAVE: Eliminar min-height fijo para que se encoja */
-    /* El footer ahora empujará el contenido cuando sea necesario */
 }
 
 header {
-    background: var(--gradient);
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
     color: white;
-    padding: 20px 15px; 
+    padding: 25px;
     text-align: center;
-    position: relative;
-    overflow: hidden;
 }
 
-header h1 {
-    font-size: 2rem; 
-    font-weight: 700;
-    margin-bottom: 10px;
+.header-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-mode {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
 }
 
 header img {
-    max-width: 100%;
-    height: auto;
-    width: 150px; 
+    width: 140px;
+    border-radius: 8px;
     margin-top: 10px;
 }
 
-header::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
-    background-size: cover;
-    background-position: center;
-}
-
-/* ---------------------------------------------------- */
-/* ---------------------- FORMULARIO -------------------- */
-/* ---------------------------------------------------- */
-
 #formulario_sueldo {
-    padding: 20px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
-    gap: 15px; 
+    gap: 1rem;
 }
 
-label {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: var(--primary);
-    display: block; 
-}
-
-.form-control, .form-select {
-    border-radius: 8px; 
-    padding: 10px 12px;
-}
-
-.faltas-container {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 5px 0;
-    border-left: 4px solid var(--accent);
-    display: flex;
-    flex-direction: column; 
-    gap: 10px;
-}
-
-/* ---------------------------------------------------- */
-/* ---------------------- BOTONES ----------------------- */
-/* ---------------------------------------------------- */
-
-.btn-primary, .btn-secondary {
-    padding: 12px 20px;
-    font-weight: 700;
-    width: 100%;
-}
-
-/* ---------------------------------------------------- */
-/* ---------------------- TABLA (RESPONSIVE) ------------ */
-/* ---------------------------------------------------- */
-
-/* Contenedor de la tabla: esencial para el scroll horizontal en móvil */
-main > .table-bordered {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; 
-}
-
-.table {
-    width: 100%;
-    min-width: 600px; 
-    margin-bottom: 1rem;
-    color: #212529;
-    border-collapse: collapse;
-}
-
-.table th,
-.table td {
-    padding: 0.75rem;
-    vertical-align: top;
-    border: 1px solid #dee2e6;
-    text-align: center !important;
-    white-space: nowrap; 
-}
-
-.table thead th {
-    background-color: var(--primary);
-    color: white;
-}
-
-/* Estilo para la fila de totales */
-.table tbody tr:last-child {
-    background-color: #e9ecef;
+/* CENTRADO DE TABLA Y TÍTULOS */
+.mes-titulo {
+    text-align: center;
+    margin: 20px 0;
     font-weight: bold;
 }
 
-/* ---------------------------------------------------- */
-/* ------------------- RESULTADOS Y FOOTER --------------- */
-/* ---------------------------------------------------- */
+.table th, .table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
 
-h3 {
-    text-align: center;
-    margin: 10px 0;
-    color: var(--primary);
+.button-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.export-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
 #resultado-container {
-    padding: 20px;
-    background-color: var(--light);
-    border-radius: 10px;
-    margin: 15px;
     text-align: center;
-}
-
-#resultado-container h3 {
-    color: var(--primary);
-    margin-bottom: 5px;
-}
-
-#resultado-container p {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--secondary);
-    margin: 5px 0;
+    padding: 20px;
+    margin: 20px;
+    border: 2px solid var(--primary);
+    border-radius: 15px;
 }
 
 footer {
     text-align: center;
-    padding: 15px;
-    background: var(--gradient);
     color: white;
-    /* Permite que el footer se pegue al final del viewport o del contenido */
-    margin-top: auto;
-}
-
-/* ---------------------------------------------------- */
-/* -------------------- MEDIA QUERIES (ESCRITORIO) ----- */
-/* ---------------------------------------------------- */
-
-@media (min-width: 768px) {
-    body {
-        padding: 40px;
-    }
-
-    .main-container {
-        max-width: 900px; 
-        border-radius: 20px;
-    }
-
-    header h1 {
-        font-size: 2.5rem;
-    }
-
-    /* Restaurar el contenedor de la tabla para que no tenga scroll si cabe */
-    .table {
-        min-width: unset; 
-        width: 100%;
-    }
-    
-    main > .table-bordered {
-        overflow-x: hidden;
-    }
-}
-
-@media (min-width: 1200px) {
-    .main-container {
-        max-width: 1200px; 
-    }
+    padding: 20px;
 }

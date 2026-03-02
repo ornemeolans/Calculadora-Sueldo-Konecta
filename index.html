@@ -1,28 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta id="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calculadora de Sueldo Pro - Konecta</title>
+    <meta name="description"
+        content="Calcula tu sueldo de forma precisa incluyendo vacaciones, faltas, feriados y acuerdos gremiales.">
+    <meta property="og:title" content="Calculadora de Sueldo Profesional">
+    <meta property="og:image" content="assets/konecta-share.jpg">
+    <meta property="og:type" content="website">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@100..900&family=Nunito&display=swap');
     </style>
-    <title>Calculadora de Sueldo Konecta</title>
 </head>
 
 <body>
-    <main class="main-container">
+    <main class="main-container" id="contenido-a-exportar">
         <header>
-            <h1>Calculadora de Sueldo</h1>
+            <div class="header-top">
+                <h1>Calculadora de Sueldo</h1>
+                <button id="toggle-dark-mode" class="btn-mode" aria-label="Cambiar modo de color">🌓</button>
+            </div>
             <img src="assets/konecta-share.jpg" alt="logo-konecta" />
         </header>
-        <form id="formulario_sueldo">
-            <select class="form-select" id="mes">
+
+        <form id="formulario_sueldo" class="responsive-gap">
+            <select class="form-select" id="mes" aria-label="Selecciona el Mes">
                 <option selected>Selecciona el Mes</option>
                 <option translate="no">JULIO 2025</option>
                 <option translate="no">AGOSTO 2025</option>
@@ -34,64 +47,93 @@
                 <option translate="no">FEBRERO 2026</option>
                 <option translate="no">MARZO 2026</option>
             </select>
-            <select class="form-select" id="contrato">
+
+            <select class="form-select" id="contrato" aria-label="Contrato de Trabajo">
                 <option selected>Contrato de Trabajo</option>
                 <option translate="no">36hs</option>
                 <option translate="no">35hs</option>
                 <option translate="no">30hs</option>
             </select>
 
-            <select class="form-select" id="faltas">
+            <select class="form-select" id="faltas" aria-label="¿Tuviste Faltas?">
                 <option selected>Tuviste Faltas?</option>
-                <option translate="no">SI</option>
-                <option translate="no">NO</option>
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
             </select>
-            <div id="faltas-container" style="display: none;">
-                <select class="form-select" id="justificadas">
+
+            <div id="faltas-container"
+                style="display: none; background: var(--light); padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 10px;">
+                <select class="form-select" id="justificadas" aria-label="¿Fueron Justificadas?">
                     <option selected>Fueron Justificadas?</option>
-                    <option translate="no">SI</option>
-                    <option translate="no">NO</option>
+                    <option value="SI">SI</option>
+                    <option value="NO">NO</option>
                 </select>
-                <label for="cfaltas" class="form-label">Cantidad de días de ausencia</label>
-                <input type="number" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
+                <label for="cfaltas" class="form-label mt-2">Cantidad de días de ausencia</label>
+                <input type="number" min="0" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
             </div>
 
-            <div class="form-check mt-2 mb-2">
+            <div class="form-check mt-3">
                 <input class="form-check-input" type="checkbox" id="vacaciones_check">
-                <label class="form-check-label" for="vacaciones_check" style="font-weight: 600; color: #4361ee;">
+                <label class="form-check-label" for="vacaciones_check" style="font-weight: 600; color: var(--primary);">
                     ¿Te tomaste vacaciones este mes?
                 </label>
             </div>
-            <div id="vacaciones-container" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #4361ee;">
+
+            <div id="vacaciones-container"
+                style="display: none; background: var(--light); padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 10px;">
                 <label for="cvacaciones" class="form-label">Cantidad de días de vacaciones</label>
-                <input type="number" class="form-control" id="cvacaciones" placeholder="Ingresa los días">
+                <input type="number" min="0" class="form-control" id="cvacaciones" placeholder="Ingresa los días">
             </div>
 
-            <select class="form-select" id="tarde">
+            <select class="form-select" id="tarde" aria-label="¿Tuviste llegadas tarde?">
                 <option selected translate="no">Tuviste llegadas tarde?</option>
                 <option translate="no">SI</option>
                 <option translate="no">NO</option>
             </select>
-            <label for="feriados" class="form-label">Feriados Trabajados</label>
-            <input type="number" class="form-control" id="feriados" placeholder="Ingresa la cantidad">
-            <label for="nocturnas" class="form-label">Horas Nocturnas</label>
-            <input type="number" class="form-control" id="nocturnas" placeholder="Ingresa la cantidad">
-            <label for="extras50" class="form-label">Horas Extras al 50%</label>
-            <input type="number" class="form-control" id="extras50" placeholder="Ingresa la cantidad">
-            <label for="extras100" class="form-label">Horas Extras al 100%</label>
-            <input type="number" class="form-control" id="extras100" placeholder="Ingresa la cantidad">
-            <label for="antiguedad" class="form-label">Años de Antigüedad</label>
-            <input type="number" class="form-control" id="antiguedad" placeholder="Ingresa la cantidad">
-            <select class="form-select" id="obrasocial">
+
+            <div class="input-group-custom">
+                <label for="feriados">Feriados Trabajados</label>
+                <input type="number" min="0" class="form-control" id="feriados" placeholder="0">
+            </div>
+
+            <div class="input-group-custom">
+                <label for="nocturnas">Horas Nocturnas</label>
+                <input type="number" min="0" class="form-control" id="nocturnas" placeholder="0">
+            </div>
+
+            <div class="input-group-custom">
+                <label for="extras50">Horas Extras al 50%</label>
+                <input type="number" min="0" class="form-control" id="extras50" placeholder="0">
+            </div>
+
+            <div class="input-group-custom">
+                <label for="extras100">Horas Extras al 100%</label>
+                <input type="number" min="0" class="form-control" id="extras100" placeholder="0">
+            </div>
+
+            <div class="input-group-custom">
+                <label for="antiguedad">Años de Antigüedad</label>
+                <input type="number" min="0" class="form-control" id="antiguedad" placeholder="0">
+            </div>
+
+            <select class="form-select" id="obrasocial" aria-label="¿Cuál es tu obra social?">
                 <option selected>Cual es tu obra social?</option>
                 <option translate="no">GEA</option>
                 <option translate="no">OTRA</option>
             </select>
-            <button type="submit" class="btn btn-primary" id="calcular">Calcular</button>
-            <button type="button" class="btn btn-secondary" id="limpiar">Reset</button>
+
+            <div class="button-grid">
+                <button type="submit" class="btn btn-primary btn-lg" id="calcular">Calcular</button>
+                <div class="export-buttons">
+                    <button type="button" class="btn btn-success" id="btn-whatsapp">WhatsApp</button>
+                    <button type="button" class="btn btn-danger" id="btn-pdf">PDF</button>
+                </div>
+                <button type="button" class="btn btn-secondary" id="limpiar">Reset</button>
+            </div>
         </form>
     </main>
     <script src="./js/script.js"></script>
     <footer> © Ornella Meolans</footer>
 </body>
+
 </html>
