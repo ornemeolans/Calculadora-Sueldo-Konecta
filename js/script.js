@@ -123,6 +123,11 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     document.querySelectorAll('table, p.mes-titulo, #resultado-container').forEach(el => el.remove());
 
     const titulo = document.createElement("p"); titulo.className = "mes-titulo"; titulo.innerHTML = `<h3>${mes}</h3>`; main.append(titulo);
+    
+    // Wrap table in responsive container
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "table-responsive-wrapper";
+    
     const tab = document.createElement('table'); tab.className = 'table table-bordered';
     tab.innerHTML = `<thead><tr><th>Conceptos</th><th>Haberes</th><th>No Remunerativo</th><th>Descuentos</th></tr></thead>`;
     const b = document.createElement('tbody');
@@ -153,7 +158,11 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         }
     });
     b.innerHTML += `<tr style="font-weight:bold;"><td>TOTALES</td><td>${trem[15].toFixed(2)}</td><td>${tnr[10].toFixed(2)}</td><td>${td[6].toFixed(2)}</td></tr>`;
-    tab.appendChild(b); main.appendChild(tab);
+    tab.appendChild(b);
+    
+    // Append table to wrapper, and wrapper to main
+    tableWrapper.appendChild(tab);
+    main.appendChild(tableWrapper);
 
     const res = document.createElement("div"); 
     res.id = "resultado-container";
@@ -281,6 +290,6 @@ function inicializarVisibilidad() {
         miformulario.reset();
         contFaltas.style.display = 'none';
         contVacas.style.display = 'none';
-        document.querySelectorAll('table, p.mes-titulo, #resultado-container').forEach(el => el.remove());
+        document.querySelectorAll('table, .table-responsive-wrapper, p.mes-titulo, #resultado-container').forEach(el => el.remove());
     });
 }

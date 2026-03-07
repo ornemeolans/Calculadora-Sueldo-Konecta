@@ -109,3 +109,103 @@ footer {
     color: white;
     padding: 20px;
 }
+
+/* RESPONSIVE TABLE FOR MOBILE */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 20px 0;
+    border-radius: 10px;
+}
+
+.table-responsive-wrapper .table {
+    font-size: 0.85rem;
+    min-width: 600px;
+}
+
+.table-responsive-wrapper .table th,
+.table-responsive-wrapper .table td {
+    padding: 8px 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    overflow: hidden;
+}
+
+.table-responsive-wrapper .table th:first-child,
+.table-responsive-wrapper .table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--bg-card);
+    z-index: 1;
+    min-width: 120px;
+}
+
+/* Dark mode support for sticky column */
+[data-theme="dark"] .table-responsive-wrapper .table th:first-child,
+[data-theme="dark"] .table-responsive-wrapper .table td:first-child {
+    background-color: var(--bg-card);
+}
+
+.table-responsive-wrapper .table thead th:first-child {
+    z-index: 2;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 576px) {
+    .table-responsive-wrapper .table {
+        font-size: 0.75rem;
+        min-width: 500px;
+    }
+    
+    .table-responsive-wrapper .table th,
+    .table-responsive-wrapper .table td {
+        padding: 6px 8px;
+    }
+    
+    .mes-titulo {
+        font-size: 1.2rem;
+        margin: 15px 10px;
+    }
+}
+
+/* Dark mode table styles */
+[data-theme="dark"] .table-responsive-wrapper {
+    border-radius: 10px;
+}
+
+[data-theme="dark"] .table-responsive-wrapper .table {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: #444;
+}
+
+[data-theme="dark"] .table-responsive-wrapper .table th {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border-color: #444 !important;
+}
+
+[data-theme="dark"] .table-responsive-wrapper .table td {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main) !important;
+    border-color: #444 !important;
+}
+
+[data-theme="dark"] .table-responsive-wrapper .table tbody tr:nth-child(even) td {
+    background-color: #252525 !important;
+}
+
+[data-theme="dark"] .table-responsive-wrapper .table th:first-child,
+[data-theme="dark"] .table-responsive-wrapper .table td:first-child {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .table-responsive-wrapper .table td:first-child {
+    background-color: var(--bg-card) !important;
+}
+
+[data-theme="dark"] .table-responsive-wrapper .table tbody tr:nth-child(even) td:first-child {
+    background-color: #252525 !important;
+}
