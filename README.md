@@ -21,13 +21,17 @@ El proyecto fue construido utilizando un stack web estándar para asegurar liger
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/ornemeolans/calculadora-sueldo-konecta.git
+   
+2. **Navegar al directorio:**
+   ```bash
+   cd calculadora-sueldo-konecta
+   
+3. **Ejecución:**
 
-2. **Ejecución:**
+   Abre el archivo index.html en cualquier navegador moderno.
 
-  Abre el archivo index.html en cualquier navegador moderno.
-
-  Nota importante: Debido a que la aplicación realiza una petición fetch para leer el archivo escalas.json, es necesario ejecutarlo a través de un servidor local
-  (como Live Server o python -m http.server) para evitar errores de política de CORS.
+   Nota importante: Debido a que la aplicación realiza una petición fetch para leer el archivo escalas.json, es necesario ejecutarlo a través de un servidor
+   local (como Live Server o python -m http.server) para evitar errores de política de CORS.
 
 ## 📂 Estructura del Proyecto
 ```text
