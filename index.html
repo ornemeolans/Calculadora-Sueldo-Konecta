@@ -37,28 +37,28 @@
         <form id="formulario_sueldo" class="responsive-gap">
             <select class="form-select" id="mes" aria-label="Selecciona el Mes">
                 <option selected>Selecciona el Mes</option>
-                <option translate="no">JULIO 2025</option>
-                <option translate="no">AGOSTO 2025</option>
-                <option translate="no">SEPTIEMBRE 2025</option>
-                <option translate="no">OCTUBRE 2025</option>
-                <option translate="no">NOVIEMBRE 2025</option>
-                <option translate="no">DICIEMBRE 2025</option>
-                <option translate="no">ENERO 2026</option>
-                <option translate="no">FEBRERO 2026</option>
-                <option translate="no">MARZO 2026</option>
-                <option translate="no">ABRIL 2026</option>
-                <option translate="no">MAYO 2026</option>
-                <option translate="no">JUNIO 2026</option>
-                <option translate="no">JULIO 2026</option>
-                <option translate="no">AGOSTO 2026</option>
-                <option translate="no">SEPTIEMBRE 2026</option>
+                <option value="JULIO 2025" translate="no">JULIO 2025</option>
+                <option value="AGOSTO 2025" translate="no">AGOSTO 2025</option>
+                <option value="SEPTIEMBRE 2025" translate="no">SEPTIEMBRE 2025</option>
+                <option value="OCTUBRE 2025" translate="no">OCTUBRE 2025</option>
+                <option value="NOVIEMBRE 2025" translate="no">NOVIEMBRE 2025</option>
+                <option value="DICIEMBRE 2025" translate="no">DICIEMBRE 2025</option>
+                <option value="ENERO 2026" translate="no">ENERO 2026</option>
+                <option value="FEBRERO 2026" translate="no">FEBRERO 2026</option>
+                <option value="MARZO 2026" translate="no">MARZO 2026</option>
+                <option value="ABRIL 2026" translate="no">ABRIL 2026</option>
+                <option value="MAYO 2026" translate="no">MAYO 2026</option>
+                <option value="JUNIO 2026" translate="no">JUNIO 2026</option>
+                <option value="JULIO 2026" translate="no">JULIO 2026</option>
+                <option value="AGOSTO 2026" translate="no">AGOSTO 2026</option>
+                <option value="SEPTIEMBRE 2026" translate="no">SEPTIEMBRE 2026</option>
             </select>
 
             <select class="form-select" id="contrato" aria-label="Contrato de Trabajo">
                 <option selected>Contrato de Trabajo</option>
-                <option translate="no">36hs</option>
-                <option translate="no">35hs</option>
-                <option translate="no">30hs</option>
+                <option value="36hs" translate="no">36hs</option>
+                <option value="35hs" translate="no">35hs</option>
+                <option value="30hs" translate="no">30hs</option>
             </select>
 
             <select class="form-select" id="faltas" aria-label="¿Tuviste Faltas?">
@@ -117,6 +117,11 @@
                 <input type="number" min="0" class="form-control" id="extras100" placeholder="0">
             </div>
 
+            <div class="input-group-custom">
+                <label for="extras100noct">Horas Extras Nocturnas 100%</label>
+                <input type="number" min="0" class="form-control" id="extras100noct" placeholder="0">
+            </div>
+            
             <div class="input-group-custom">
                 <label for="antiguedad">Años de Antigüedad</label>
                 <input type="number" min="0" class="form-control" id="antiguedad" placeholder="0">
