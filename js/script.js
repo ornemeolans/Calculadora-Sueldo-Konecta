@@ -1,24 +1,18 @@
 let ESCALAS_SALARIALES = null;
 const miformulario = document.getElementById('formulario_sueldo');
-const calcularBtn = document.getElementById('calcular');
 
-// Deshabilitar el botón hasta que carguen los datos
-calcularBtn.disabled = true;
-
+// 1. CARGA DE DATOS EXTERNOS
 async function cargarEscalas() {
     try {
         const response = await fetch('escalas.json');
-        if (!response.ok) throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+        if (!response.ok) throw new Error("Archivo no encontrado");
         ESCALAS_SALARIALES = await response.json();
+        console.log("Escalas cargadas correctamente");
         inicializarVisibilidad();
-        calcularBtn.disabled = false;
     } catch (error) {
-        console.error('❌ Error cargando escalas:', error);
-        alert(`Error al cargar datos: ${error.message}. Revisa la consola (F12) y asegúrate de usar un servidor local.`);
-        calcularBtn.disabled = false; // habilitar para no bloquear
+        console.error("Error crítico al cargar escalas:", error);
     }
 }
-
 cargarEscalas();
 
 // 2. VALIDACIONES EN TIEMPO REAL
@@ -178,122 +172,81 @@ function descuentos(trem, tnrem, obrasocial) {
 // 5. EVENTO CALCULAR Y RENDERIZADO DE TABLA
 document.getElementById('calcular').addEventListener('click', (e) => {
     e.preventDefault();
+    if (!ESCALAS_SALARIALES) { alert("Cargando datos..."); return; }
 
-    // Verificar que los datos estén cargados
-    if (!ESCALAS_SALARIALES) {
-        alert("Los datos de escalas aún no se han cargado. Intenta nuevamente.");
-        return;
-    }
+    const mes = document.getElementById('mes').value, contrato = document.getElementById('contrato').value;
+    if (mes.includes("Selecciona") || contrato.includes("Contrato")) { alert("Completa Mes y Contrato"); return; }
 
-    const mes = document.getElementById('mes').value.trim();
-    const contrato = document.getElementById('contrato').value.trim();
-
-    // Validaciones
-    if (!mes || mes === "Selecciona el Mes") {
-        alert("Por favor, selecciona un mes válido.");
-        return;
-    }
-    if (!contrato || contrato === "Contrato de Trabajo") {
-        alert("Por favor, selecciona un contrato válido.");
-        return;
-    }
-
-    // Verificar que el mes y contrato existan en el JSON
-    if (!ESCALAS_SALARIALES[mes]) {
-        alert(`El mes "${mes}" no está disponible en las escalas.`);
-        return;
-    }
-    if (!ESCALAS_SALARIALES[mes][contrato]) {
-        alert(`El contrato "${contrato}" no existe para el mes "${mes}".`);
-        return;
-    }
-
-    // Obtener otros valores
-    const faltas = document.getElementById('faltas').value;
-    const tarde = document.getElementById('tarde').value;
-    const obrasocial = document.getElementById('obrasocial').value;
+    const faltas = document.getElementById('faltas').value, tarde = document.getElementById('tarde').value, obrasocial = document.getElementById('obrasocial').value;
     const cvac = document.getElementById('vacaciones_check').checked ? parseInt(document.getElementById('cvacaciones').value) || 0 : 0;
     const cf = (faltas === 'SI') ? parseInt(document.getElementById('cfaltas').value) || 0 : 0;
     const jus = (faltas === 'SI') ? document.getElementById('justificadas').value : 'NO';
 
-    const feriados = parseInt(document.getElementById('feriados').value) || 0;
-    const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
-    const antiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
-    const extras50 = parseInt(document.getElementById('extras50').value) || 0;
-    const extras100 = parseInt(document.getElementById('extras100').value) || 0;
-    const extras100noct = parseInt(document.getElementById('extras100noct').value) || 0;
-
-    // Cálculos
-    const trem = remunerativo(mes, contrato, tarde, faltas, jus, cf, feriados, nocturnas, antiguedad, extras50, extras100, extras100noct, cvac);
-    const tnr = no_remunerativo(mes, contrato, tarde, faltas, jus, feriados, antiguedad, cvac);
+    const trem = remunerativo(mes, contrato, tarde, faltas, jus, cf, parseInt(document.getElementById('feriados').value) || 0, parseInt(document.getElementById('nocturnas').value) || 0, parseInt(document.getElementById('antiguedad').value) || 0, parseInt(document.getElementById('extras50').value) || 0, parseInt(document.getElementById('extras100').value) || 0, parseInt(document.getElementById('extras100noct').value) || 0, cvac);
+    const tnr = no_remunerativo(mes, contrato, tarde, faltas, jus, parseInt(document.getElementById('feriados').value) || 0, parseInt(document.getElementById('antiguedad').value) || 0, cvac);
     const td = descuentos(trem, tnr, obrasocial);
     const tsueldo = (trem[15] + tnr[12] - td[6]).toFixed(2);
 
-    // Renderizar resultados (igual que antes)
     const main = document.querySelector('main');
     document.querySelectorAll('table, .table-responsive-wrapper, p.mes-titulo, #resultado-container').forEach(el => el.remove());
 
-    const titulo = document.createElement("p");
-    titulo.className = "mes-titulo";
-    titulo.innerHTML = `<h3>${mes}</h3>`;
-    main.append(titulo);
-
+    const titulo = document.createElement("p"); titulo.className = "mes-titulo"; titulo.innerHTML = `<h3>${mes}</h3>`; main.append(titulo);
+    
     const tableWrapper = document.createElement("div");
     tableWrapper.className = "table-responsive-wrapper";
-
-    const tab = document.createElement('table');
-    tab.className = 'table table-bordered';
+    
+    const tab = document.createElement('table'); tab.className = 'table table-bordered';
     tab.innerHTML = `<thead><tr><th>Conceptos</th><th>Haberes</th><th>No Remunerativo</th><th>Descuentos</th></tr></thead>`;
     const b = document.createElement('tbody');
 
     const lineItems = [
-        { name: "BASICO", haberes: trem[0] },
-        { name: "VACACIONES GOZADAS", haberes: trem[14] },
-        { name: "FERIADO", haberes: trem[1] },
-        { name: "PRESENTISMO", haberes: trem[2] },
-        { name: "ANTIGUEDAD", haberes: trem[3] },
-        { name: "PUNTUALIDAD", haberes: trem[4] },
-        { name: "DIAS DE LICENCIA", haberes: trem[5] },
-        { name: "ADICIONAL HORA NOCTURNA", haberes: trem[6] },
-        { name: "HORAS EXTRAS 50%", haberes: trem[7] },
-        { name: "HORAS EXTRAS 100%", haberes: trem[8] },
-        { name: "HS. EXTRAS NOCTURNAS 100%", haberes: trem[16] },
-        { name: "ACUERDO JUNIO 2025", haberes: trem[9] },
-        { name: "ACUERDO JUNIO 2025 PRESENTISMO", haberes: trem[10] },
-        { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: trem[11] },
-        { name: "ACUERDO JUNIO 2025 PUNTUALIDAD", haberes: trem[12] },
-        { name: "ACUERDO JUNIO 2025 FERIADO", haberes: trem[13] },
+        { name: "BASICO",                              haberes: trem[0]  },
+        { name: "VACACIONES GOZADAS",                  haberes: trem[14] },
+        { name: "FERIADO",                             haberes: trem[1]  },
+        { name: "PRESENTISMO",                         haberes: trem[2]  },
+        { name: "ANTIGUEDAD",                          haberes: trem[3]  },
+        { name: "PUNTUALIDAD",                         haberes: trem[4]  },
+        { name: "DIAS DE LICENCIA",                    haberes: trem[5]  },
+        { name: "ADICIONAL HORA NOCTURNA",             haberes: trem[6]  },
+        { name: "HORAS EXTRAS 50%",                    haberes: trem[7]  },
+        { name: "HORAS EXTRAS 100%",                   haberes: trem[8]  },
+        { name: "HS. EXTRAS NOCTURNAS 100%",           haberes: trem[16] },
+        { name: "ACUERDO JUNIO 2025",                  haberes: trem[9]  },
+        { name: "ACUERDO JUNIO 2025 PRESENTISMO",      haberes: trem[10] },
+        { name: "ACUERDO JUNIO 2025 ANTIGUEDAD",       haberes: trem[11] },
+        { name: "ACUERDO JUNIO 2025 PUNTUALIDAD",      haberes: trem[12] },
+        { name: "ACUERDO JUNIO 2025 FERIADO",          haberes: trem[13] },
         // Acuerdos No Remunerativos — Julio 2025
-        { name: "ACUERDO JULIO 2025", no_remunerativo: tnr[0] },
-        { name: "ACUERDO JULIO 2025 PRESENTISMO", no_remunerativo: tnr[1] },
-        { name: "ACUERDO JULIO 2025 ANTIGUEDAD", no_remunerativo: tnr[2] },
-        { name: "ACUERDO JULIO 2025 PUNTUALIDAD", no_remunerativo: tnr[3] },
-        { name: "ACUERDO JULIO 2025 FERIADO", no_remunerativo: tnr[4] },
-        { name: "ACUERDO JULIO 2025 VACACIONES", no_remunerativo: tnr[5] },
+        { name: "ACUERDO JULIO 2025",                  no_remunerativo: tnr[0]  },
+        { name: "ACUERDO JULIO 2025 PRESENTISMO",      no_remunerativo: tnr[1]  },
+        { name: "ACUERDO JULIO 2025 ANTIGUEDAD",       no_remunerativo: tnr[2]  },
+        { name: "ACUERDO JULIO 2025 PUNTUALIDAD",      no_remunerativo: tnr[3]  },
+        { name: "ACUERDO JULIO 2025 FERIADO",          no_remunerativo: tnr[4]  },
+        { name: "ACUERDO JULIO 2025 VACACIONES",       no_remunerativo: tnr[5]  },
         // Acuerdos No Remunerativos — Diciembre 2025
-        { name: "ACUERDO DICIEMBRE 2025", no_remunerativo: tnr[6] },
-        { name: "ACUERDO DICIEMBRE 2025 PRESENTISMO", no_remunerativo: tnr[7] },
-        { name: "ACUERDO DICIEMBRE 2025 ANTIGUEDAD", no_remunerativo: tnr[8] },
-        { name: "ACUERDO DICIEMBRE 2025 PUNTUALIDAD", no_remunerativo: tnr[9] },
-        { name: "ACUERDO DICIEMBRE 2025 FERIADO", no_remunerativo: tnr[10] },
-        { name: "ACUERDO DICIEMBRE 2025 VACACIONES", no_remunerativo: tnr[11] },
-        // Acuerdos No Remunerativos — Abril 2026
-        { name: "ACUERDO ABRIL 2026", no_remunerativo: tnr[13] },
-        { name: "ACUERDO ABRIL 2026 PRESENTISMO", no_remunerativo: tnr[14] },
-        { name: "ACUERDO ABRIL 2026 ANTIGUEDAD", no_remunerativo: tnr[15] },
-        { name: "ACUERDO ABRIL 2026 PUNTUALIDAD", no_remunerativo: tnr[16] },
-        { name: "ACUERDO ABRIL 2026 FERIADO", no_remunerativo: tnr[17] },
-        { name: "ACUERDO ABRIL 2026 VACACIONES", no_remunerativo: tnr[18] },
-        // Sumas únicas
-        { name: "ACUERDO SUMA ÚNICA CUOTA 1", no_remunerativo: tnr[19] },
-        { name: "ACUERDO SUMA ÚNICA CUOTA 2", no_remunerativo: tnr[20] },
+        { name: "ACUERDO DICIEMBRE 2025",              no_remunerativo: tnr[6]  },
+        { name: "ACUERDO DICIEMBRE 2025 PRESENTISMO",  no_remunerativo: tnr[7]  },
+        { name: "ACUERDO DICIEMBRE 2025 ANTIGUEDAD",   no_remunerativo: tnr[8]  },
+        { name: "ACUERDO DICIEMBRE 2025 PUNTUALIDAD",  no_remunerativo: tnr[9]  },
+        { name: "ACUERDO DICIEMBRE 2025 FERIADO",      no_remunerativo: tnr[10] },
+        { name: "ACUERDO DICIEMBRE 2025 VACACIONES",   no_remunerativo: tnr[11] },
+        // Acuerdos No Remunerativos — Abril 2026 ($120.000: $100.000 prorrogado + $20.000 nuevo)
+        { name: "ACUERDO ABRIL 2026",                  no_remunerativo: tnr[13] },
+        { name: "ACUERDO ABRIL 2026 PRESENTISMO",      no_remunerativo: tnr[14] },
+        { name: "ACUERDO ABRIL 2026 ANTIGUEDAD",       no_remunerativo: tnr[15] },
+        { name: "ACUERDO ABRIL 2026 PUNTUALIDAD",      no_remunerativo: tnr[16] },
+        { name: "ACUERDO ABRIL 2026 FERIADO",          no_remunerativo: tnr[17] },
+        { name: "ACUERDO ABRIL 2026 VACACIONES",       no_remunerativo: tnr[18] },
+        // Acuerdos No Remunerativos — Suma única (2 cuotas)
+        { name: "ACUERDO SUMA ÚNICA CUOTA 1",          no_remunerativo: sumaunicavezCuota1 },
+        { name: "ACUERDO SUMA ÚNICA CUOTA 2",          no_remunerativo: sumaunicavezCuota2 },
         // Descuentos
-        { name: "APORTE SIJP SOBRE SUELDO", descuentos: td[0] },
-        { name: "APORTE INSSJP SOBRE SUELDO", descuentos: td[1] },
-        { name: "APORTE O. SOC SOBRE SUELDO", descuentos: td[2] },
-        { name: "CTT S FALLECIMIENTO", descuentos: td[3] },
-        { name: "CTT 688/14", descuentos: td[4] },
-        { name: "APORTE O. SOCIAL ACUERDO", descuentos: td[5] }
+        { name: "APORTE SIJP SOBRE SUELDO",  descuentos: td[0] },
+        { name: "APORTE INSSJP SOBRE SUELDO",descuentos: td[1] },
+        { name: "APORTE O. SOC SOBRE SUELDO",descuentos: td[2] },
+        { name: "CTT S FALLECIMIENTO",        descuentos: td[3] },
+        { name: "CTT 688/14",                 descuentos: td[4] },
+        { name: "APORTE O. SOCIAL ACUERDO",   descuentos: td[5] }
     ];
 
     lineItems.forEach(i => {
@@ -301,13 +254,13 @@ document.getElementById('calcular').addEventListener('click', (e) => {
             b.innerHTML += `<tr><td>${i.name}</td><td>${i.haberes ? i.haberes.toFixed(2) : ''}</td><td>${i.no_remunerativo ? i.no_remunerativo.toFixed(2) : ''}</td><td>${i.descuentos ? i.descuentos.toFixed(2) : ''}</td></tr>`;
         }
     });
-
     b.innerHTML += `<tr style="font-weight:bold;"><td>TOTALES</td><td>${trem[15].toFixed(2)}</td><td>${tnr[12].toFixed(2)}</td><td>${td[6].toFixed(2)}</td></tr>`;
     tab.appendChild(b);
+    
     tableWrapper.appendChild(tab);
     main.appendChild(tableWrapper);
 
-    const res = document.createElement("div");
+    const res = document.createElement("div"); 
     res.id = "resultado-container";
     res.innerHTML = `
         <h3>Total a cobrar:</h3>

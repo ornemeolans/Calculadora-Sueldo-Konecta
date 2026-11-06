@@ -73,5 +73,20 @@
         "36hs": { "basico": 892243.98, "acuerdoRem": 0, "acuerdoNoRemDic": 74835.37, "acuerdoNoRemAbr": 60627.84 },
         "35hs": { "basico": 867459.40, "acuerdoRem": 0, "acuerdoNoRemDic": 72795.50, "acuerdoNoRemAbr": 58943.73 },
         "30hs": { "basico": 743536.67, "acuerdoRem": 0, "acuerdoNoRemDic": 62396.15, "acuerdoNoRemAbr": 50523.20 }
+    },
+    "OCTUBRE 2026": {
+        "36hs": { "basico": 911771.18, "acuerdoRem": 0, "acuerdoNoRemDic": 74835.37, "acuerdoNoRemAbr": 60627.84, "sumaunicavezCuota1": 18750 },
+        "35hs": { "basico": 886444.18, "acuerdoRem": 0, "acuerdoNoRemDic": 72795.50, "acuerdoNoRemAbr": 58943.73, "sumaunicavezCuota1": 18229.17 },
+        "30hs": { "basico": 759809.34, "acuerdoRem": 0, "acuerdoNoRemDic": 62396.15, "acuerdoNoRemAbr": 50523.20, "sumaunicavezCuota1": 15625 }
+    },
+    "NOVIEMBRE 2026": {
+        "36hs": { "basico": 931298.37, "acuerdoRem": 0, "acuerdoNoRemDic": 74835.37, "acuerdoNoRemAbr": 60627.84, "sumaunicavezCuota2": 18750 },
+        "35hs": { "basico": 905428.95, "acuerdoRem": 0, "acuerdoNoRemDic": 72795.50, "acuerdoNoRemAbr": 58943.73, "sumaunicavezCuota2": 18229.17 },
+        "30hs": { "basico": 776082.00, "acuerdoRem": 0, "acuerdoNoRemDic": 62396.15, "acuerdoNoRemAbr": 50523.20, "sumaunicavezCuota2": 15625 }
+    },
+    "DICIEMBRE 2026": {
+        "36hs": { "basico": 973409.44, "acuerdoRem": 0, "acuerdoNoRemDic": 74835.37, "acuerdoNoRemAbr": 60627.84 },
+        "35hs": { "basico": 946370.26, "acuerdoRem": 0, "acuerdoNoRemDic": 72795.50, "acuerdoNoRemAbr": 58943.73 },
+        "30hs": { "basico": 811174.56, "acuerdoRem": 0, "acuerdoNoRemDic": 62396.15, "acuerdoNoRemAbr": 50523.20 }
     }
 }
