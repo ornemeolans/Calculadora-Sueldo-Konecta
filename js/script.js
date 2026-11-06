@@ -37,7 +37,7 @@ btnDark.addEventListener('click', () => {
 });
 
 // 4. FUNCIONES DE CÁLCULO
-function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100, extras100noct, cvacaciones = 0) {
+function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100, extras100noct, cvacaciones = 0, promVariables = 0) {
     const data = ESCALAS_SALARIALES[mes][contrato];
     const basico_escala = data.basico;
     let acuerdoBaseRem = data.acuerdoRem || 0;
@@ -65,15 +65,14 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
     let base_adicionales = basico_recibo + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + extras100noct_calc;
 
     // ── Vacaciones (LCT Art.155 + CCT 130/75) ──────────────────────────────
-    // Remuneración diaria = (remuneración mensual completa) / 25
-    // La remuneración mensual completa incluye: básico ESCALA (no proporcional) +
-    // antigüedad + extras + feriados. Puntualidad y presentismo se calculan primero
-    // como valores "completos" (sobre el básico escala, no proporcional) para usarlos
-    // como base de vacaciones, y luego se vuelven a calcular sobre los días reales.
-    let basico_completo     = basico_escala; // mes completo, sin proporcionar
-    let base_vac_previa     = basico_completo + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + extras100noct_calc;
-    // Para vacaciones: puntualidad sobre base_vac + vacaciones estimadas (circular)
-    // Aproximación: puntualidad_vac = base_vac_previa * 0.005 (suficientemente preciso)
+    // Valor día = remuneración mensual / 25. Remuneración mensual =
+    //   básico ESCALA (mes completo) + antigüedad
+    //   + promedio de variables (extras, nocturnas, feriados) de los últimos 6 meses (art.155 inc. c)
+    //   + puntualidad y presentismo sobre todo lo anterior.
+    // Las extras/feriados del mes en curso NO entran: ya se pagan en su propia línea.
+    // (Verificado contra recibo Konecta abril 2026: el básico se paga por días
+    //  trabajados, la antigüedad se paga completa y además integra el valor día.)
+    let base_vac_previa     = basico_escala + antiguedad + promVariables;
     let punt_vac_aprox      = base_vac_previa * 0.005;
     let pres_vac_aprox      = (base_vac_previa + punt_vac_aprox) * 0.10;
     // Base vacaciones = todos los haberes del mes completo
@@ -122,55 +121,74 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
 
     let total_rem = base_adicionales + vacaciones_haberes + puntualidad + presentismo + dlicencia + acuerdoBaseRem + aj2025_PRES + aj2025_ANT + aj2025_PUNT + aj2025_FER;
 
-    return [basico_recibo, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, extras50_calc, extras100_calc, acuerdoBaseRem, aj2025_PRES, aj2025_ANT, aj2025_PUNT, aj2025_FER, vacaciones_haberes, total_rem, extras100noct_calc];
+    // Base CCT 688/14 desde julio 2026 (verificado recibos jul/ago/sep 2026):
+    // básico + antigüedad + su puntualidad y presentismo. Se excluyen las variables
+    // (feriados, nocturnas, horas extras) junto con la puntualidad/presentismo que generan.
+    const pctPunt = (puntualidad > 0) ? 0.005 : 0;
+    const pctPres = (base_adicionales + puntualidad) > 0 ? presentismo / (base_adicionales + puntualidad) : 0;
+    const variables = feriados + aj2025_FER + nocturnasAdicional + extras50_calc + extras100_calc + extras100noct_calc;
+    const base688 = total_rem - variables * (1 + pctPunt) * (1 + pctPres);
+
+    return [basico_recibo, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, extras50_calc, extras100_calc, acuerdoBaseRem, aj2025_PRES, aj2025_ANT, aj2025_PUNT, aj2025_FER, vacaciones_haberes, total_rem, extras100noct_calc, base688];
 }
 
-function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad, cvacaciones = 0) {
+// Adicionales de un acuerdo No Remunerativo (criterio verificado con recibo Konecta abril 2026):
+//  - Antigüedad: % sobre el acuerdo
+//  - Horas extras: acuerdo / (horas semanales × 4.3) × factor × horas
+//  - Vacaciones: acuerdo × días / 150  (= diferencia 1/25 − 1/30 por día, porque el acuerdo se paga entero)
+//  - Puntualidad 0,5% sobre acuerdo + antigüedad + extras + feriado + vacaciones
+//  - Presentismo sobre lo anterior + puntualidad
+function adicionalesNR(monto, p) {
+    const valorHoraNR = monto / p.horasMes;
+    const ant   = monto * p.aantiguedad / 100;
+    const fer   = monto / 30 * p.cferiado;
+    const ex50  = valorHoraNR * 1.5 * p.extras50;
+    const ex100 = valorHoraNR * 2 * p.extras100;
+    const exN   = valorHoraNR * 2 * (17 / 15) * p.extras100noct;
+    const vac   = monto * p.cvacaciones / 150;
+    const baseP = monto + ant + fer + ex50 + ex100 + exN + vac;
+    const punt  = baseP * p.percPunt;
+    const pres  = (baseP + punt) * p.percPres;
+    return { monto, ant, fer, ex50, ex100, exN, vac, punt, pres, total: baseP + punt + pres };
+}
+
+function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad, cvacaciones = 0, extras50 = 0, extras100 = 0, extras100noct = 0) {
     const data = ESCALAS_SALARIALES[mes][contrato];
-    let acuNoRem    = data.acuerdoNoRem    || 0;
-    let acuNoRemDic = data.acuerdoNoRemDic || 0;
-    let acuNoRemAbr = data.acuerdoNoRemAbr || 0;
-    let sumaunicavezCuota1 = data.sumaunicavezCuota1 || 0;
-    let sumaunicavezCuota2 = data.sumaunicavezCuota2 || 0;
+    const p = {
+        horasMes: (parseInt(contrato) || 36) * 4.3,
+        percPres: (faltas == 'NO') ? 0.10 : (justificadas == 'SI' ? 0.06 : 0),
+        percPunt: (tarde == 'NO') ? 0.005 : 0,
+        aantiguedad, cferiado, cvacaciones, extras50, extras100, extras100noct
+    };
 
-    let percPres = (faltas == 'NO') ? 0.10 : (justificadas == 'SI' ? 0.06 : 0);
-    let percPunt = (tarde == 'NO') ? 0.005 : 0;
+    const jul = adicionalesNR(data.acuerdoNoRem    || 0, p); // Acuerdo Julio/Agosto 2025
+    const dic = adicionalesNR(data.acuerdoNoRemDic || 0, p); // Acuerdo Diciembre 2025
+    const abr = adicionalesNR(data.acuerdoNoRemAbr || 0, p); // Acuerdo Abril 2026
+    const cuota1 = data.sumaunicavezCuota1 || 0;
+    const cuota2 = data.sumaunicavezCuota2 || 0;
 
-    // Acuerdo Julio/Agosto 2025
-    let aj_PRES = acuNoRem * percPres, aj_ANT = acuNoRem * aantiguedad / 100;
-    let aj_PUNT = acuNoRem * percPunt, aj_FER = acuNoRem / 30 * cferiado;
-    // Vacaciones NR: los acuerdos NR computan para vacaciones (texto expreso acuerdo Dic2025 y Abr2026)
-    // Fórmula: acuNR / 25 * (cvac * 5/30) = acuNR * cvac / 150
-    // (proporción de días hábiles de vacaciones sobre días hábiles del mes)
-    let aj_VAC  = acuNoRem    * cvacaciones / 150;
-
-    // Acuerdo Diciembre 2025
-    let ad_PRES = acuNoRemDic * percPres, ad_ANT = acuNoRemDic * aantiguedad / 100;
-    let ad_PUNT = acuNoRemDic * percPunt, ad_FER = acuNoRemDic / 30 * cferiado;
-    let ad_VAC  = acuNoRemDic * cvacaciones / 150;
-
-    // Acuerdo Abril 2026 ($120.000 NR: $100.000 prorrogado + $20.000 nuevo)
-    let aa_PRES = acuNoRemAbr * percPres, aa_ANT = acuNoRemAbr * aantiguedad / 100;
-    let aa_PUNT = acuNoRemAbr * percPunt, aa_FER = acuNoRemAbr / 30 * cferiado;
-    let aa_VAC  = acuNoRemAbr * cvacaciones / 150;
-
-    let total_nr = acuNoRem    + aj_PRES + aj_ANT + aj_PUNT + aj_FER + aj_VAC +
-                   acuNoRemDic + ad_PRES + ad_ANT + ad_PUNT + ad_FER + ad_VAC +
-                   acuNoRemAbr + aa_PRES + aa_ANT + aa_PUNT + aa_FER + aa_VAC + sumaunicavezCuota1 + sumaunicavezCuota2;
-
-    // índices: 0=acuJul, 1=pres, 2=ant, 3=punt, 4=fer, 5=vac_jul,
-    //          6=acuDic, 7=pres, 8=ant, 9=punt, 10=fer, 11=vac_dic,
-    //          12=total_nr,
-    //          13=acuAbr, 14=pres, 15=ant, 16=punt, 17=fer, 18=vac_abr
-    return [acuNoRem, aj_PRES, aj_ANT, aj_PUNT, aj_FER, aj_VAC,
-            acuNoRemDic, ad_PRES, ad_ANT, ad_PUNT, ad_FER, ad_VAC,
-            total_nr,
-            acuNoRemAbr, aa_PRES, aa_ANT, aa_PUNT, aa_FER, aa_VAC, sumaunicavezCuota1, sumaunicavezCuota2];
+    return { jul, dic, abr, cuota1, cuota2, total: jul.total + dic.total + abr.total + cuota1 + cuota2 };
 }
 
-function descuentos(trem, tnrem, obrasocial) {
-    const t_rem = trem[trem.length - 2], t_nr = tnrem[12]; // total_rem en [15], total_nr en [12]
-    let s = t_rem * 0.11, i = t_rem * 0.03, o = t_rem * 0.03, f = t_rem * 0.59 / 100, c = (t_rem + t_nr) * 1.5 / 100, oa = (obrasocial == 'GEA') ? t_rem * 1.30 / 100 : 0;
+// Base del CCT 688/14 según el mes (verificado con recibos Konecta 2026):
+//   'remNR'      hasta abril 2026: total remunerativo + no remunerativo (recibo abril)
+//   'basico'     mayo-junio 2026: solo el básico de escala (recibo junio; mayo sin verificar)
+//   'conformado' desde julio 2026: básico + antigüedad + punt./pres. (recibos jul/ago/sep)
+function regimenCCT688(mes) {
+    const meses = Object.keys(ESCALAS_SALARIALES);
+    const i = meses.indexOf(mes);
+    if (i >= meses.indexOf('JULIO 2026')) return 'conformado';
+    if (i >= meses.indexOf('MAYO 2026')) return 'basico';
+    return 'remNR';
+}
+
+function descuentos(trem, tnrem, obrasocial, basicoEscala, regimen688) {
+    const t_rem = trem[15], t_nr = tnrem.total;
+    // CTT S. Fallecimiento: 0,5% del básico de escala (verificado recibos jun/jul/ago/sep 2026)
+    const base688 = regimen688 === 'conformado' ? trem[17]
+                  : regimen688 === 'basico'     ? basicoEscala
+                  : t_rem + t_nr;
+    let s = t_rem * 0.11, i = t_rem * 0.03, o = t_rem * 0.03, f = basicoEscala * 0.005, c = base688 * 1.5 / 100, oa = (obrasocial == 'GEA') ? t_rem * 1.30 / 100 : 0;
     let total_desc = s + i + o + f + c + oa;
     return [s, i, o, f, c, oa, total_desc];
 }
@@ -212,8 +230,15 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const faltas = document.getElementById('faltas').value;
     const tarde = document.getElementById('tarde').value;
     const obrasocial = document.getElementById('obrasocial').value;
-    const cvac = document.getElementById('vacaciones_check').checked ? parseInt(document.getElementById('cvacaciones').value) || 0 : 0;
+    const conVacaciones = document.getElementById('vacaciones_check').checked;
+    const cvac = conVacaciones ? parseInt(document.getElementById('cvacaciones').value) || 0 : 0;
+    const promVar = conVacaciones ? parseFloat(document.getElementById('promvariables').value) || 0 : 0;
     const cf = (faltas === 'SI') ? parseInt(document.getElementById('cfaltas').value) || 0 : 0;
+
+    if (cvac + cf > 30) {
+        alert("Los días de vacaciones más los días de falta no pueden superar 30.");
+        return;
+    }
     const jus = (faltas === 'SI') ? document.getElementById('justificadas').value : 'NO';
 
     const feriados = parseInt(document.getElementById('feriados').value) || 0;
@@ -224,10 +249,22 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const extras100noct = parseInt(document.getElementById('extras100noct').value) || 0;
 
     // Cálculos
-    const trem = remunerativo(mes, contrato, tarde, faltas, jus, cf, feriados, nocturnas, antiguedad, extras50, extras100, extras100noct, cvac);
-    const tnr = no_remunerativo(mes, contrato, tarde, faltas, jus, feriados, antiguedad, cvac);
-    const td = descuentos(trem, tnr, obrasocial);
-    const tsueldo = (trem[15] + tnr[12] - td[6]).toFixed(2);
+    const trem = remunerativo(mes, contrato, tarde, faltas, jus, cf, feriados, nocturnas, antiguedad, extras50, extras100, extras100noct, cvac, promVar);
+    const tnr = no_remunerativo(mes, contrato, tarde, faltas, jus, feriados, antiguedad, cvac, extras50, extras100, extras100noct);
+    const td = descuentos(trem, tnr, obrasocial, ESCALAS_SALARIALES[mes][contrato].basico, regimenCCT688(mes));
+    const tsueldo = (trem[15] + tnr.total - td[6]).toFixed(2);
+
+    const lineasNR = (nombre, a) => [
+        { name: nombre, no_remunerativo: a.monto },
+        { name: `${nombre} PRESENTISMO`, no_remunerativo: a.pres },
+        { name: `${nombre} ANTIGUEDAD`, no_remunerativo: a.ant },
+        { name: `${nombre} PUNTUALIDAD`, no_remunerativo: a.punt },
+        { name: `${nombre} FERIADO`, no_remunerativo: a.fer },
+        { name: `${nombre} HS. EXTRAS 50%`, no_remunerativo: a.ex50 },
+        { name: `${nombre} HS. EXTRAS 100%`, no_remunerativo: a.ex100 },
+        { name: `${nombre} HS. EXTRAS NOCT. 100%`, no_remunerativo: a.exN },
+        { name: `${nombre} VACACIONES`, no_remunerativo: a.vac }
+    ];
 
     // Renderizar resultados (igual que antes)
     const main = document.querySelector('main');
@@ -263,30 +300,13 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: trem[11] },
         { name: "ACUERDO JUNIO 2025 PUNTUALIDAD", haberes: trem[12] },
         { name: "ACUERDO JUNIO 2025 FERIADO", haberes: trem[13] },
-        // Acuerdos No Remunerativos — Julio 2025
-        { name: "ACUERDO JULIO 2025", no_remunerativo: tnr[0] },
-        { name: "ACUERDO JULIO 2025 PRESENTISMO", no_remunerativo: tnr[1] },
-        { name: "ACUERDO JULIO 2025 ANTIGUEDAD", no_remunerativo: tnr[2] },
-        { name: "ACUERDO JULIO 2025 PUNTUALIDAD", no_remunerativo: tnr[3] },
-        { name: "ACUERDO JULIO 2025 FERIADO", no_remunerativo: tnr[4] },
-        { name: "ACUERDO JULIO 2025 VACACIONES", no_remunerativo: tnr[5] },
-        // Acuerdos No Remunerativos — Diciembre 2025
-        { name: "ACUERDO DICIEMBRE 2025", no_remunerativo: tnr[6] },
-        { name: "ACUERDO DICIEMBRE 2025 PRESENTISMO", no_remunerativo: tnr[7] },
-        { name: "ACUERDO DICIEMBRE 2025 ANTIGUEDAD", no_remunerativo: tnr[8] },
-        { name: "ACUERDO DICIEMBRE 2025 PUNTUALIDAD", no_remunerativo: tnr[9] },
-        { name: "ACUERDO DICIEMBRE 2025 FERIADO", no_remunerativo: tnr[10] },
-        { name: "ACUERDO DICIEMBRE 2025 VACACIONES", no_remunerativo: tnr[11] },
-        // Acuerdos No Remunerativos — Abril 2026
-        { name: "ACUERDO ABRIL 2026", no_remunerativo: tnr[13] },
-        { name: "ACUERDO ABRIL 2026 PRESENTISMO", no_remunerativo: tnr[14] },
-        { name: "ACUERDO ABRIL 2026 ANTIGUEDAD", no_remunerativo: tnr[15] },
-        { name: "ACUERDO ABRIL 2026 PUNTUALIDAD", no_remunerativo: tnr[16] },
-        { name: "ACUERDO ABRIL 2026 FERIADO", no_remunerativo: tnr[17] },
-        { name: "ACUERDO ABRIL 2026 VACACIONES", no_remunerativo: tnr[18] },
+        // Acuerdos No Remunerativos
+        ...lineasNR("ACUERDO JULIO 2025", tnr.jul),
+        ...lineasNR("ACUERDO DICIEMBRE 2025", tnr.dic),
+        ...lineasNR("ACUERDO ABRIL 2026", tnr.abr),
         // Sumas únicas
-        { name: "ACUERDO SUMA ÚNICA CUOTA 1", no_remunerativo: tnr[19] },
-        { name: "ACUERDO SUMA ÚNICA CUOTA 2", no_remunerativo: tnr[20] },
+        { name: "ACUERDO SUMA ÚNICA CUOTA 1", no_remunerativo: tnr.cuota1 },
+        { name: "ACUERDO SUMA ÚNICA CUOTA 2", no_remunerativo: tnr.cuota2 },
         // Descuentos
         { name: "APORTE SIJP SOBRE SUELDO", descuentos: td[0] },
         { name: "APORTE INSSJP SOBRE SUELDO", descuentos: td[1] },
@@ -302,7 +322,7 @@ document.getElementById('calcular').addEventListener('click', (e) => {
         }
     });
 
-    b.innerHTML += `<tr style="font-weight:bold;"><td>TOTALES</td><td>${trem[15].toFixed(2)}</td><td>${tnr[12].toFixed(2)}</td><td>${td[6].toFixed(2)}</td></tr>`;
+    b.innerHTML += `<tr style="font-weight:bold;"><td>TOTALES</td><td>${trem[15].toFixed(2)}</td><td>${tnr.total.toFixed(2)}</td><td>${td[6].toFixed(2)}</td></tr>`;
     tab.appendChild(b);
     tableWrapper.appendChild(tab);
     main.appendChild(tableWrapper);

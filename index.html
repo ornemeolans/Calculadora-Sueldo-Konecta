@@ -91,7 +91,10 @@
             <div id="vacaciones-container"
                 style="display: none; background: var(--light); padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 10px;">
                 <label for="cvacaciones" class="form-label">Cantidad de días de vacaciones</label>
-                <input type="number" min="0" class="form-control" id="cvacaciones" placeholder="Ingresa los días">
+                <input type="number" min="0" max="30" class="form-control" id="cvacaciones" placeholder="Ingresa los días">
+                <label for="promvariables" class="form-label mt-2">Promedio mensual de horas extras, nocturnas y feriados de los últimos 6 meses ($) — opcional</label>
+                <input type="number" min="0" step="0.01" class="form-control" id="promvariables" placeholder="0">
+                <small class="form-text">Sumá los importes de esos conceptos en tus últimos 6 recibos y dividí por 6.</small>
             </div>
 
             <select class="form-select" id="tarde" aria-label="¿Tuviste llegadas tarde?">
