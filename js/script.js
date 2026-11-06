@@ -7,7 +7,8 @@ calcularBtn.disabled = true;
 
 async function cargarEscalas() {
     try {
-        const response = await fetch('escalas.json');
+        // no-cache: siempre revalida con el servidor, así los cambios de escalas se ven al instante
+        const response = await fetch(`escalas.json?t=${Date.now()}`, { cache: 'no-cache' });
         if (!response.ok) throw new Error(`HTTP ${response.status} - ${response.statusText}`);
         ESCALAS_SALARIALES = await response.json();
         inicializarVisibilidad();
