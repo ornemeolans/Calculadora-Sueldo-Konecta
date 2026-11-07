@@ -133,6 +133,25 @@ function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferi
     return [basico_recibo, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, extras50_calc, extras100_calc, acuerdoBaseRem, aj2025_PRES, aj2025_ANT, aj2025_PUNT, aj2025_FER, vacaciones_haberes, total_rem, extras100noct_calc, base688];
 }
 
+// Promedio mensual ($) de las variables de los 6 meses anteriores, para el valor día de vacaciones
+// (LCT art.155 inc. c). El usuario carga CANTIDADES sumadas de los 6 meses; se valorizan con el
+// básico promedio de esos meses según escalas.json (o el del mes actual si no hay meses previos).
+function promedioVariables(mes, contrato, t) {
+    const meses = Object.keys(ESCALAS_SALARIALES);
+    const i = meses.indexOf(mes);
+    const previos = meses.slice(Math.max(0, i - 6), i).filter(m => ESCALAS_SALARIALES[m][contrato]);
+    const basicoProm = previos.length
+        ? previos.reduce((s, m) => s + ESCALAS_SALARIALES[m][contrato].basico, 0) / previos.length
+        : ESCALAS_SALARIALES[mes][contrato].basico;
+    const valorHora = basicoProm / ((parseInt(contrato) || 36) * 4.3);
+    const total = basicoProm / 30 * t.feriados
+                + valorHora * 0.1311 * t.nocturnas
+                + valorHora * 1.5 * t.extras50
+                + valorHora * 2 * t.extras100
+                + valorHora * 2 * (17 / 15) * t.extras100noct;
+    return total / 6;
+}
+
 // Adicionales de un acuerdo No Remunerativo (criterio verificado con recibo Konecta abril 2026):
 //  - Antigüedad: % sobre el acuerdo
 //  - Horas extras: acuerdo / (horas semanales × 4.3) × factor × horas
@@ -233,7 +252,11 @@ document.getElementById('calcular').addEventListener('click', (e) => {
     const obrasocial = document.getElementById('obrasocial').value;
     const conVacaciones = document.getElementById('vacaciones_check').checked;
     const cvac = conVacaciones ? parseInt(document.getElementById('cvacaciones').value) || 0 : 0;
-    const promVar = conVacaciones ? parseFloat(document.getElementById('promvariables').value) || 0 : 0;
+    const num = id => parseFloat(document.getElementById(id).value) || 0;
+    const promVar = conVacaciones ? promedioVariables(mes, contrato, {
+        feriados: num('v6_feriados'), nocturnas: num('v6_nocturnas'),
+        extras50: num('v6_extras50'), extras100: num('v6_extras100'), extras100noct: num('v6_extras100noct')
+    }) : 0;
     const cf = (faltas === 'SI') ? parseInt(document.getElementById('cfaltas').value) || 0 : 0;
 
     if (cvac + cf > 30) {
