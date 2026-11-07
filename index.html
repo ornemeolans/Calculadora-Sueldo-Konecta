@@ -1,176 +1,246 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Calculadora de Sueldo Pro - Konecta</title>
+    <title>Calculadora de Sueldo - Konecta</title>
     <meta name="description"
-        content="Calcula tu sueldo de forma precisa incluyendo vacaciones, faltas, feriados y acuerdos gremiales.">
-    <meta property="og:title" content="Calculadora de Sueldo Profesional">
+        content="Calculá tu sueldo de Konecta incluyendo vacaciones, faltas, feriados, horas extras y acuerdos gremiales.">
+    <meta property="og:title" content="Calculadora de Sueldo - Konecta">
     <meta property="og:image" content="assets/konecta-share.jpg">
     <meta property="og:type" content="website">
+    <meta name="theme-color" content="#3a0ca3">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234361ee'/%3E%3Ctext x='16' y='22.5' font-family='Arial' font-weight='700' font-size='18' text-anchor='middle' fill='white'%3E$%3C/text%3E%3C/svg%3E">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Aplica el tema guardado (o el del sistema) antes de pintar, para evitar el destello -->
+    <script>
+        (function () {
+            var t = null;
+            try { t = localStorage.getItem('tema'); } catch (e) { }
+            if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', t);
+        })();
+    </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@100..900&family=Nunito&display=swap');
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Cambiar el ?v= en cada actualización para que los navegadores no usen la versión en caché -->
+    <link rel="stylesheet" href="css/style.css?v=2026-11-06c">
 </head>
 
 <body>
-    <main class="main-container" id="contenido-a-exportar">
-        <header>
-            <div class="header-top">
+    <main class="app">
+        <header class="app-header">
+            <div class="app-header__top">
                 <h1>Calculadora de Sueldo</h1>
-                <button id="toggle-dark-mode" class="btn-mode" aria-label="Cambiar modo de color">🌓</button>
+                <button id="toggle-tema" type="button" class="btn-tema" aria-label="Cambiar a modo oscuro">
+                    <svg class="icono icono--luna" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                    </svg>
+                    <svg class="icono icono--sol" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4.5" />
+                        <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8" />
+                    </svg>
+                </button>
             </div>
-            <img src="assets/konecta-share.jpg" alt="logo-konecta" />
+            <img src="assets/konecta-share.jpg" alt="Konecta" width="140" height="32">
         </header>
 
-        <form id="formulario_sueldo" class="responsive-gap">
-            <select class="form-select" id="mes" aria-label="Selecciona el Mes">
-                <option selected>Selecciona el Mes</option>
-                <option translate="no">JULIO 2025</option>
-                <option translate="no">AGOSTO 2025</option>
-                <option translate="no">SEPTIEMBRE 2025</option>
-                <option translate="no">OCTUBRE 2025</option>
-                <option translate="no">NOVIEMBRE 2025</option>
-                <option translate="no">DICIEMBRE 2025</option>
-                <option translate="no">ENERO 2026</option>
-                <option translate="no">FEBRERO 2026</option>
-                <option translate="no">MARZO 2026</option>
-                <option translate="no">ABRIL 2026</option>
-                <option translate="no">MAYO 2026</option>
-                <option translate="no">JUNIO 2026</option>
-                <option translate="no">JULIO 2026</option>
-                <option translate="no">AGOSTO 2026</option>
-                <option translate="no">SEPTIEMBRE 2026</option>
-                <option translate="no">OCTUBRE 2026</option>
-                <option translate="no">NOVIEMBRE 2026</option>
-                <option translate="no">DICIEMBRE 2026</option>
-            </select>
+        <form id="formulario" class="formulario" novalidate>
+            <div id="errores" class="aviso-error" role="alert" hidden></div>
 
-            <select class="form-select" id="contrato" aria-label="Contrato de Trabajo">
-                <option selected>Contrato de Trabajo</option>
-                <option translate="no">36hs</option>
-                <option translate="no">35hs</option>
-                <option translate="no">30hs</option>
-            </select>
-
-            <select class="form-select" id="faltas" aria-label="¿Tuviste Faltas?">
-                <option selected>Tuviste Faltas?</option>
-                <option value="SI">SI</option>
-                <option value="NO">NO</option>
-            </select>
-
-            <div id="faltas-container"
-                style="display: none; background: var(--light); padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 10px;">
-                <select class="form-select" id="justificadas" aria-label="¿Fueron Justificadas?">
-                    <option selected>Fueron Justificadas?</option>
-                    <option value="SI">SI</option>
-                    <option value="NO">NO</option>
-                </select>
-                <label for="cfaltas" class="form-label mt-2">Cantidad de días de ausencia</label>
-                <input type="number" min="0" class="form-control" id="cfaltas" placeholder="Ingresa la cantidad">
-            </div>
-
-            <div class="form-check mt-3">
-                <input class="form-check-input" type="checkbox" id="vacaciones_check">
-                <label class="form-check-label" for="vacaciones_check" style="font-weight: 600; color: var(--primary);">
-                    ¿Te tomaste vacaciones este mes?
-                </label>
-            </div>
-
-            <div id="vacaciones-container"
-                style="display: none; background: var(--light); padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); margin-top: 10px;">
-                <label for="cvacaciones" class="form-label">Cantidad de días de vacaciones</label>
-                <input type="number" min="0" max="30" class="form-control" id="cvacaciones" placeholder="Ingresa los días">
-                <p class="form-label mt-3 mb-1" style="font-weight: 600;">Opcional: ¿qué hiciste en los 6 meses anteriores?</p>
-                <small class="form-text d-block mb-2">Sumá las cantidades de los 6 meses (no los importes). Las vacaciones incluyen el promedio de estos conceptos. Si lo dejás vacío, el cálculo puede salir un poco más bajo.</small>
-                <div class="input-group-custom">
-                    <label for="v6_feriados">Feriados trabajados (días)</label>
-                    <input type="number" min="0" class="form-control" id="v6_feriados" placeholder="0">
+            <fieldset class="grupo">
+                <legend>Tu contrato</legend>
+                <div class="grilla">
+                    <div class="campo">
+                        <label for="mes" class="form-label">Mes a liquidar</label>
+                        <select class="form-select" id="mes" required>
+                            <option value="">Cargando meses…</option>
+                        </select>
+                        <div class="invalid-feedback">Elegí el mes.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="contrato" class="form-label">Contrato</label>
+                        <select class="form-select" id="contrato" required>
+                            <option value="">Elegí tu contrato</option>
+                            <option value="36hs">36 hs semanales</option>
+                            <option value="35hs">35 hs semanales</option>
+                            <option value="30hs">30 hs semanales</option>
+                        </select>
+                        <div class="invalid-feedback">Elegí tu contrato.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="antiguedad" class="form-label">Años de antigüedad</label>
+                        <input type="number" class="form-control" id="antiguedad" min="0" max="50" step="1"
+                            inputmode="numeric" placeholder="0">
+                        <div class="form-text">Años completos desde tu fecha de ingreso.</div>
+                        <div class="invalid-feedback">Ingresá un número entero entre 0 y 50.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="obrasocial" class="form-label">Obra social</label>
+                        <select class="form-select" id="obrasocial" required>
+                            <option value="">Elegí tu obra social</option>
+                            <option value="GEA">GEA</option>
+                            <option value="OTRA">Otra</option>
+                        </select>
+                        <div class="invalid-feedback">Elegí tu obra social.</div>
+                    </div>
                 </div>
-                <div class="input-group-custom">
-                    <label for="v6_nocturnas">Horas nocturnas</label>
-                    <input type="number" min="0" class="form-control" id="v6_nocturnas" placeholder="0">
+            </fieldset>
+
+            <fieldset class="grupo">
+                <legend>Asistencia del mes</legend>
+
+                <div class="pregunta" role="radiogroup" aria-labelledby="faltas-titulo">
+                    <span id="faltas-titulo" class="pregunta__titulo">¿Faltaste algún día?</span>
+                    <div class="segmentado">
+                        <input type="radio" class="btn-check" name="faltas" id="faltas-no" value="NO" checked>
+                        <label class="btn" for="faltas-no">No</label>
+                        <input type="radio" class="btn-check" name="faltas" id="faltas-si" value="SI">
+                        <label class="btn" for="faltas-si">Sí</label>
+                    </div>
                 </div>
-                <div class="input-group-custom">
-                    <label for="v6_extras50">Horas extras al 50%</label>
-                    <input type="number" min="0" class="form-control" id="v6_extras50" placeholder="0">
+
+                <div id="faltas-detalle" class="detalle" hidden>
+                    <div class="pregunta" role="radiogroup" aria-labelledby="justificadas-titulo">
+                        <span id="justificadas-titulo" class="pregunta__titulo">¿Fueron justificadas?</span>
+                        <div class="segmentado">
+                            <input type="radio" class="btn-check" name="justificadas" id="justificadas-no" value="NO">
+                            <label class="btn" for="justificadas-no">No</label>
+                            <input type="radio" class="btn-check" name="justificadas" id="justificadas-si" value="SI">
+                            <label class="btn" for="justificadas-si">Sí</label>
+                        </div>
+                        <div class="invalid-feedback" id="justificadas-error">Indicá si las faltas fueron justificadas.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="cfaltas" class="form-label">Días de ausencia</label>
+                        <input type="number" class="form-control" id="cfaltas" min="1" max="30" step="1"
+                            inputmode="numeric" placeholder="0">
+                        <div class="invalid-feedback">Ingresá cuántos días faltaste (entre 1 y 30).</div>
+                    </div>
+                    <p class="detalle__nota">Justificadas: cobrás el 6% de presentismo. Injustificadas: se pierde el presentismo y no se pagan esos días.</p>
                 </div>
-                <div class="input-group-custom">
-                    <label for="v6_extras100">Horas extras al 100%</label>
-                    <input type="number" min="0" class="form-control" id="v6_extras100" placeholder="0">
+
+                <div class="pregunta" role="radiogroup" aria-labelledby="tarde-titulo">
+                    <span id="tarde-titulo" class="pregunta__titulo">¿Llegaste tarde algún día?</span>
+                    <div class="segmentado">
+                        <input type="radio" class="btn-check" name="tarde" id="tarde-no" value="NO" checked>
+                        <label class="btn" for="tarde-no">No</label>
+                        <input type="radio" class="btn-check" name="tarde" id="tarde-si" value="SI">
+                        <label class="btn" for="tarde-si">Sí</label>
+                    </div>
                 </div>
-                <div class="input-group-custom">
-                    <label for="v6_extras100noct">Horas extras nocturnas al 100%</label>
-                    <input type="number" min="0" class="form-control" id="v6_extras100noct" placeholder="0">
+            </fieldset>
+
+            <fieldset class="grupo">
+                <legend>Horas y feriados del mes</legend>
+                <div class="grilla">
+                    <div class="campo">
+                        <label for="feriados" class="form-label">Feriados trabajados (días)</label>
+                        <input type="number" class="form-control" id="feriados" min="0" max="31" step="1" inputmode="numeric" placeholder="0">
+                        <div class="invalid-feedback">Entre 0 y 31 días.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="nocturnas" class="form-label">Horas nocturnas</label>
+                        <input type="number" class="form-control" id="nocturnas" min="0" max="300" step="0.5" inputmode="decimal" placeholder="0">
+                        <div class="invalid-feedback">Entre 0 y 300 horas.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="extras50" class="form-label">Horas extras al 50%</label>
+                        <input type="number" class="form-control" id="extras50" min="0" max="200" step="0.5" inputmode="decimal" placeholder="0">
+                        <div class="invalid-feedback">Entre 0 y 200 horas.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="extras100" class="form-label">Horas extras al 100%</label>
+                        <input type="number" class="form-control" id="extras100" min="0" max="200" step="0.5" inputmode="decimal" placeholder="0">
+                        <div class="invalid-feedback">Entre 0 y 200 horas.</div>
+                    </div>
+                    <div class="campo">
+                        <label for="extras100noct" class="form-label">Horas extras nocturnas al 100%</label>
+                        <input type="number" class="form-control" id="extras100noct" min="0" max="200" step="0.5" inputmode="decimal" placeholder="0">
+                        <div class="invalid-feedback">Entre 0 y 200 horas.</div>
+                    </div>
                 </div>
-            </div>
+            </fieldset>
 
-            <select class="form-select" id="tarde" aria-label="¿Tuviste llegadas tarde?">
-                <option selected translate="no">Tuviste llegadas tarde?</option>
-                <option translate="no">SI</option>
-                <option translate="no">NO</option>
-            </select>
-
-            <div class="input-group-custom">
-                <label for="feriados">Feriados Trabajados</label>
-                <input type="number" min="0" class="form-control" id="feriados" placeholder="0">
-            </div>
-
-            <div class="input-group-custom">
-                <label for="nocturnas">Horas Nocturnas</label>
-                <input type="number" min="0" class="form-control" id="nocturnas" placeholder="0">
-            </div>
-
-            <div class="input-group-custom">
-                <label for="extras50">Horas Extras al 50%</label>
-                <input type="number" min="0" class="form-control" id="extras50" placeholder="0">
-            </div>
-
-            <div class="input-group-custom">
-                <label for="extras100">Horas Extras al 100%</label>
-                <input type="number" min="0" class="form-control" id="extras100" placeholder="0">
-            </div>
-
-            <div class="input-group-custom">
-                <label for="extras100noct">Horas Extras Nocturnas al 100%</label>
-                <input type="number" min="0" class="form-control" id="extras100noct" placeholder="0">
-            </div>
-
-            <div class="input-group-custom">
-                <label for="antiguedad">Años de Antigüedad</label>
-                <input type="number" min="0" class="form-control" id="antiguedad" placeholder="0">
-            </div>
-
-            <select class="form-select" id="obrasocial" aria-label="¿Cuál es tu obra social?">
-                <option selected>Cual es tu obra social?</option>
-                <option translate="no">GEA</option>
-                <option translate="no">OTRA</option>
-            </select>
-
-            <div class="button-grid">
-                <button type="submit" class="btn btn-primary btn-lg" id="calcular">Calcular</button>
-                <div class="export-buttons">
-                    <button type="button" class="btn btn-success" id="btn-whatsapp">WhatsApp</button>
-                    <button type="button" class="btn btn-danger" id="btn-pdf">PDF</button>
+            <fieldset class="grupo">
+                <legend>Vacaciones</legend>
+                <div class="form-check form-switch interruptor">
+                    <input class="form-check-input" type="checkbox" role="switch" id="vacaciones_check">
+                    <label class="form-check-label" for="vacaciones_check">Me tomé vacaciones este mes</label>
                 </div>
-                <button type="button" class="btn btn-secondary" id="limpiar">Reset</button>
+
+                <div id="vacaciones-detalle" class="detalle" hidden>
+                    <div class="campo">
+                        <label for="cvacaciones" class="form-label">Días de vacaciones (corridos)</label>
+                        <input type="number" class="form-control" id="cvacaciones" min="1" max="30" step="1" inputmode="numeric" placeholder="0">
+                        <div class="invalid-feedback">Ingresá los días de vacaciones (entre 1 y 30).</div>
+                    </div>
+
+                    <p class="detalle__subtitulo">Opcional: lo que hiciste en los 6 meses anteriores</p>
+                    <p class="detalle__nota">Sumá las cantidades de los 6 meses (no los importes). Las vacaciones incluyen el promedio de estos conceptos; si lo dejás vacío, el cálculo puede salir un poco más bajo.</p>
+                    <div class="grilla">
+                        <div class="campo">
+                            <label for="v6_feriados" class="form-label">Feriados trabajados (días)</label>
+                            <input type="number" class="form-control" id="v6_feriados" min="0" max="186" step="1" inputmode="numeric" placeholder="0">
+                            <div class="invalid-feedback">Entre 0 y 186 días.</div>
+                        </div>
+                        <div class="campo">
+                            <label for="v6_nocturnas" class="form-label">Horas nocturnas</label>
+                            <input type="number" class="form-control" id="v6_nocturnas" min="0" max="1800" step="0.5" inputmode="decimal" placeholder="0">
+                            <div class="invalid-feedback">Entre 0 y 1800 horas.</div>
+                        </div>
+                        <div class="campo">
+                            <label for="v6_extras50" class="form-label">Horas extras al 50%</label>
+                            <input type="number" class="form-control" id="v6_extras50" min="0" max="1200" step="0.5" inputmode="decimal" placeholder="0">
+                            <div class="invalid-feedback">Entre 0 y 1200 horas.</div>
+                        </div>
+                        <div class="campo">
+                            <label for="v6_extras100" class="form-label">Horas extras al 100%</label>
+                            <input type="number" class="form-control" id="v6_extras100" min="0" max="1200" step="0.5" inputmode="decimal" placeholder="0">
+                            <div class="invalid-feedback">Entre 0 y 1200 horas.</div>
+                        </div>
+                        <div class="campo">
+                            <label for="v6_extras100noct" class="form-label">Horas extras nocturnas al 100%</label>
+                            <input type="number" class="form-control" id="v6_extras100noct" min="0" max="1200" step="0.5" inputmode="decimal" placeholder="0">
+                            <div class="invalid-feedback">Entre 0 y 1200 horas.</div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="acciones">
+                <button type="submit" class="btn btn-primary btn-lg" id="calcular" disabled>Calcular</button>
+                <button type="button" class="btn btn-link" id="limpiar">Limpiar formulario</button>
             </div>
         </form>
+
+        <section id="resultado" class="resultado" aria-live="polite" aria-labelledby="resultado-titulo" hidden>
+            <div class="resultado__neto">
+                <h2 id="resultado-titulo" class="resultado__titulo"></h2>
+                <p class="resultado__etiqueta">Neto estimado a cobrar</p>
+                <p class="resultado__monto" id="neto"></p>
+                <p class="resultado__nota">Es un cálculo aproximado: puede haber diferencias con tu recibo.</p>
+            </div>
+
+            <div id="recibo" class="recibo"></div>
+
+            <div class="compartir">
+                <button type="button" class="btn btn-outline-primary" id="btn-whatsapp">Compartir por WhatsApp</button>
+                <button type="button" class="btn btn-outline-primary" id="btn-pdf">Descargar PDF</button>
+            </div>
+        </section>
     </main>
-    <!-- Cambiar el ?v= en cada actualización para que los navegadores no usen la versión en caché -->
-    <script src="./js/script.js?v=2026-11-06b"></script>
-    <footer> © Ornella Meolans</footer>
+
+    <footer class="pie">© Ornella Meolans</footer>
+
+    <script src="./js/calculo.js?v=2026-11-06c"></script>
+    <script src="./js/script.js?v=2026-11-06c"></script>
 </body>
 
 </html>

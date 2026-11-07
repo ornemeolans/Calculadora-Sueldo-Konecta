@@ -1,432 +1,431 @@
-let ESCALAS_SALARIALES = null;
-const miformulario = document.getElementById('formulario_sueldo');
-const calcularBtn = document.getElementById('calcular');
+/* Interfaz de la calculadora. La lógica de cálculo vive en js/calculo.js (window.Calculo). */
+(function () {
+    'use strict';
 
-// Deshabilitar el botón hasta que carguen los datos
-calcularBtn.disabled = true;
+    const $ = id => document.getElementById(id);
+    const form = $('formulario');
+    const btnCalcular = $('calcular');
+    const resultado = $('resultado');
+    const cajaErrores = $('errores');
 
-async function cargarEscalas() {
-    try {
-        // no-cache: siempre revalida con el servidor, así los cambios de escalas se ven al instante
-        const response = await fetch(`escalas.json?t=${Date.now()}`, { cache: 'no-cache' });
-        if (!response.ok) throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-        ESCALAS_SALARIALES = await response.json();
-        inicializarVisibilidad();
-        calcularBtn.disabled = false;
-    } catch (error) {
-        console.error('❌ Error cargando escalas:', error);
-        alert(`Error al cargar datos: ${error.message}. Revisa la consola (F12) y asegúrate de usar un servidor local.`);
-        calcularBtn.disabled = false; // habilitar para no bloquear
+    const MESES = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO',
+        'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+    const PREFS = ['contrato', 'antiguedad', 'obrasocial'];
+
+    const pesos = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 });
+    const numero = n => n.toLocaleString('es-AR', { maximumFractionDigits: 2 });
+    const titulo = s => s.charAt(0) + s.slice(1).toLowerCase();
+
+    let ESCALAS = null;
+    let ultimo = null; // último resultado calculado
+
+    // ── Almacenamiento seguro (modo incógnito / bloqueado) ───────────────
+    const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* sin almacenamiento */ } };
+    const leer = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+    // ── Creación de elementos sin innerHTML ─────────────────────────────
+    function el(tag, attrs, ...hijos) {
+        const n = document.createElement(tag);
+        for (const [k, v] of Object.entries(attrs || {})) {
+            if (k === 'class') n.className = v; else n.setAttribute(k, v);
+        }
+        for (const h of hijos) if (h != null) n.append(h);
+        return n;
     }
-}
 
-cargarEscalas();
-
-// 2. VALIDACIONES EN TIEMPO REAL
-document.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener('input', function () {
-        if (this.value < 0) this.value = 0;
+    // ── Tema claro / oscuro ─────────────────────────────────────────────
+    const btnTema = $('toggle-tema');
+    function actualizarBotonTema() {
+        const oscuro = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        btnTema.setAttribute('aria-label', oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    }
+    btnTema.addEventListener('click', () => {
+        const nuevo = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-bs-theme', nuevo);
+        guardar('tema', nuevo);
+        actualizarBotonTema();
     });
-});
+    actualizarBotonTema();
 
-// 3. MODO OSCURO
-const btnDark = document.getElementById('toggle-dark-mode');
-btnDark.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-});
-
-// 4. FUNCIONES DE CÁLCULO
-function remunerativo(mes, contrato, tarde, faltas, justificadas, cfaltas, cferiado, nocturnas, aantiguedad, extras50, extras100, extras100noct, cvacaciones = 0, promVariables = 0) {
-    const data = ESCALAS_SALARIALES[mes][contrato];
-    const basico_escala = data.basico;
-    let acuerdoBaseRem = data.acuerdoRem || 0;
-
-    // Horas mensuales: horas semanales × 4.3 semanas/mes (LCT)
-    const horasSemanales = parseInt(contrato) || 36;
-    const horasMes = horasSemanales * 4.3;
-    const valorHora = basico_escala / horasMes;
-
-    // Básico proporcional (días trabajados = 30 - vacaciones - faltas injustificadas)
-    let basico_recibo = (basico_escala / 30) * (30 - cfaltas - cvacaciones);
-    let feriados        = basico_escala / 30 * cferiado;
-    // Antigüedad: siempre sobre básico escala completo (Art.24 CCT 130/75)
-    let antiguedad      = basico_escala * aantiguedad / 100;
-    // Adicional hora nocturna ordinaria (0.1311 = 13.11% del valor hora)
-    let nocturnasAdicional  = valorHora * 0.1311 * nocturnas;
-    // Horas extras: divisor horasMes (horasSemanales × 4.3), factor × 1.5 ó × 2
-    let extras50_calc       = valorHora * 1.5  * extras50;
-    let extras100_calc      = valorHora * 2    * extras100;
-    // Horas extras nocturnas 100%: factor 17/15 sobre la hora diurna (CCT + LCT)
-    let extras100noct_calc  = valorHora * 2 * (17 / 15) * extras100noct;
-
-    // Base de cálculo de presentismo y puntualidad:
-    // básico proporcional + antigüedad + extras + feriados (SIN vacaciones)
-    let base_adicionales = basico_recibo + feriados + antiguedad + nocturnasAdicional + extras50_calc + extras100_calc + extras100noct_calc;
-
-    // ── Vacaciones (LCT Art.155 + CCT 130/75) ──────────────────────────────
-    // Valor día = remuneración mensual / 25. Remuneración mensual =
-    //   básico ESCALA (mes completo) + antigüedad
-    //   + promedio de variables (extras, nocturnas, feriados) de los últimos 6 meses (art.155 inc. c)
-    //   + puntualidad y presentismo sobre todo lo anterior.
-    // Las extras/feriados del mes en curso NO entran: ya se pagan en su propia línea.
-    // (Verificado contra recibo Konecta abril 2026: el básico se paga por días
-    //  trabajados, la antigüedad se paga completa y además integra el valor día.)
-    let base_vac_previa     = basico_escala + antiguedad + promVariables;
-    let punt_vac_aprox      = base_vac_previa * 0.005;
-    let pres_vac_aprox      = (base_vac_previa + punt_vac_aprox) * 0.10;
-    // Base vacaciones = todos los haberes del mes completo
-    let base_vacaciones     = base_vac_previa + punt_vac_aprox + pres_vac_aprox + acuerdoBaseRem * (1 + aantiguedad/100 + 0.005 + 0.10);
-    let vacaciones_haberes  = (base_vacaciones / 25) * cvacaciones;
-
-    // ── Puntualidad (Art.40 CCT 130/75: 0,5% de la remuneración del mes) ───
-    // La remuneración del mes incluye las vacaciones gozadas
-    let puntualidad, presentismo, dlicencia, aj2025_PRES, aj2025_ANT, aj2025_PUNT, aj2025_FER;
-
-    if (faltas == 'NO' && tarde == 'NO') {
-        // Puntualidad 0.5% sobre base_adicionales + vacaciones (remuneración completa del mes)
-        puntualidad  = (base_adicionales + vacaciones_haberes) * 0.005;
-        // Presentismo 10% (Art.40: 1/12 remuneración = ~8.33%, pero el CCT usa 10%)
-        // Base: base_adicionales + puntualidad (sin vacaciones, que es licencia)
-        presentismo  = (base_adicionales + puntualidad) * 0.10;
-        dlicencia    = 0;
-        aj2025_PRES  = acuerdoBaseRem * 0.10;
-        aj2025_ANT   = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNT  = acuerdoBaseRem * 0.005;
-    } else if (faltas == 'NO' && tarde == 'SI') {
-        puntualidad  = 0;
-        presentismo  = (base_adicionales) * 0.10;
-        dlicencia    = 0;
-        aj2025_PRES  = acuerdoBaseRem * 0.10;
-        aj2025_ANT   = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNT  = 0;
-    } else if (faltas == 'SI' && justificadas == 'SI') {
-        // Con faltas justificadas: presentismo reducido al 60% (6/10)
-        puntualidad  = (tarde == 'NO') ? (base_adicionales + vacaciones_haberes) * 0.005 : 0;
-        presentismo  = (base_adicionales + puntualidad) * 0.06;
-        dlicencia    = (basico_escala / 30) * cfaltas;
-        aj2025_PRES  = acuerdoBaseRem * 0.06;
-        aj2025_ANT   = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNT  = (puntualidad > 0) ? acuerdoBaseRem * 0.005 : 0;
-    } else {
-        // Faltas injustificadas: pierde presentismo
-        puntualidad  = (tarde == 'NO') ? (base_adicionales + vacaciones_haberes) * 0.005 : 0;
-        presentismo  = 0;
-        dlicencia    = 0;
-        aj2025_PRES  = 0;
-        aj2025_ANT   = acuerdoBaseRem * aantiguedad / 100;
-        aj2025_PUNT  = (puntualidad > 0) ? acuerdoBaseRem * 0.005 : 0;
-    }
-    aj2025_FER = acuerdoBaseRem / 30 * cferiado;
-
-    let total_rem = base_adicionales + vacaciones_haberes + puntualidad + presentismo + dlicencia + acuerdoBaseRem + aj2025_PRES + aj2025_ANT + aj2025_PUNT + aj2025_FER;
-
-    // Base CCT 688/14 desde julio 2026 (verificado recibos jul/ago/sep 2026):
-    // básico + antigüedad + su puntualidad y presentismo. Se excluyen las variables
-    // (feriados, nocturnas, horas extras) junto con la puntualidad/presentismo que generan.
-    const pctPunt = (puntualidad > 0) ? 0.005 : 0;
-    const pctPres = (base_adicionales + puntualidad) > 0 ? presentismo / (base_adicionales + puntualidad) : 0;
-    const variables = feriados + aj2025_FER + nocturnasAdicional + extras50_calc + extras100_calc + extras100noct_calc;
-    const base688 = total_rem - variables * (1 + pctPunt) * (1 + pctPres);
-
-    return [basico_recibo, feriados, presentismo, antiguedad, puntualidad, dlicencia, nocturnasAdicional, extras50_calc, extras100_calc, acuerdoBaseRem, aj2025_PRES, aj2025_ANT, aj2025_PUNT, aj2025_FER, vacaciones_haberes, total_rem, extras100noct_calc, base688];
-}
-
-// Promedio mensual ($) de las variables de los 6 meses anteriores, para el valor día de vacaciones
-// (LCT art.155 inc. c). El usuario carga CANTIDADES sumadas de los 6 meses; se valorizan con el
-// básico promedio de esos meses según escalas.json (o el del mes actual si no hay meses previos).
-function promedioVariables(mes, contrato, t) {
-    const meses = Object.keys(ESCALAS_SALARIALES);
-    const i = meses.indexOf(mes);
-    const previos = meses.slice(Math.max(0, i - 6), i).filter(m => ESCALAS_SALARIALES[m][contrato]);
-    const basicoProm = previos.length
-        ? previos.reduce((s, m) => s + ESCALAS_SALARIALES[m][contrato].basico, 0) / previos.length
-        : ESCALAS_SALARIALES[mes][contrato].basico;
-    const valorHora = basicoProm / ((parseInt(contrato) || 36) * 4.3);
-    const total = basicoProm / 30 * t.feriados
-                + valorHora * 0.1311 * t.nocturnas
-                + valorHora * 1.5 * t.extras50
-                + valorHora * 2 * t.extras100
-                + valorHora * 2 * (17 / 15) * t.extras100noct;
-    return total / 6;
-}
-
-// Adicionales de un acuerdo No Remunerativo (criterio verificado con recibo Konecta abril 2026):
-//  - Antigüedad: % sobre el acuerdo
-//  - Horas extras: acuerdo / (horas semanales × 4.3) × factor × horas
-//  - Vacaciones: acuerdo × días / 150  (= diferencia 1/25 − 1/30 por día, porque el acuerdo se paga entero)
-//  - Puntualidad 0,5% sobre acuerdo + antigüedad + extras + feriado + vacaciones
-//  - Presentismo sobre lo anterior + puntualidad
-function adicionalesNR(monto, p) {
-    const valorHoraNR = monto / p.horasMes;
-    const ant   = monto * p.aantiguedad / 100;
-    const fer   = monto / 30 * p.cferiado;
-    const ex50  = valorHoraNR * 1.5 * p.extras50;
-    const ex100 = valorHoraNR * 2 * p.extras100;
-    const exN   = valorHoraNR * 2 * (17 / 15) * p.extras100noct;
-    const vac   = monto * p.cvacaciones / 150;
-    const baseP = monto + ant + fer + ex50 + ex100 + exN + vac;
-    const punt  = baseP * p.percPunt;
-    const pres  = (baseP + punt) * p.percPres;
-    return { monto, ant, fer, ex50, ex100, exN, vac, punt, pres, total: baseP + punt + pres };
-}
-
-function no_remunerativo(mes, contrato, tarde, faltas, justificadas, cferiado, aantiguedad, cvacaciones = 0, extras50 = 0, extras100 = 0, extras100noct = 0) {
-    const data = ESCALAS_SALARIALES[mes][contrato];
-    const p = {
-        horasMes: (parseInt(contrato) || 36) * 4.3,
-        percPres: (faltas == 'NO') ? 0.10 : (justificadas == 'SI' ? 0.06 : 0),
-        percPunt: (tarde == 'NO') ? 0.005 : 0,
-        aantiguedad, cferiado, cvacaciones, extras50, extras100, extras100noct
-    };
-
-    const jul = adicionalesNR(data.acuerdoNoRem    || 0, p); // Acuerdo Julio/Agosto 2025
-    const dic = adicionalesNR(data.acuerdoNoRemDic || 0, p); // Acuerdo Diciembre 2025
-    const abr = adicionalesNR(data.acuerdoNoRemAbr || 0, p); // Acuerdo Abril 2026
-    const cuota1 = data.sumaunicavezCuota1 || 0;
-    const cuota2 = data.sumaunicavezCuota2 || 0;
-
-    return { jul, dic, abr, cuota1, cuota2, total: jul.total + dic.total + abr.total + cuota1 + cuota2 };
-}
-
-// Base del CCT 688/14 según el mes (verificado con recibos Konecta 2026):
-//   'remNR'      hasta abril 2026: total remunerativo + no remunerativo (recibo abril)
-//   'basico'     mayo-junio 2026: solo el básico de escala (recibo junio; mayo sin verificar)
-//   'conformado' desde julio 2026: básico + antigüedad + punt./pres. (recibos jul/ago/sep)
-function regimenCCT688(mes) {
-    const meses = Object.keys(ESCALAS_SALARIALES);
-    const i = meses.indexOf(mes);
-    if (i >= meses.indexOf('JULIO 2026')) return 'conformado';
-    if (i >= meses.indexOf('MAYO 2026')) return 'basico';
-    return 'remNR';
-}
-
-function descuentos(trem, tnrem, obrasocial, basicoEscala, regimen688) {
-    const t_rem = trem[15], t_nr = tnrem.total;
-    // CTT S. Fallecimiento: 0,5% del básico de escala (verificado recibos jun/jul/ago/sep 2026)
-    const base688 = regimen688 === 'conformado' ? trem[17]
-                  : regimen688 === 'basico'     ? basicoEscala
-                  : t_rem + t_nr;
-    let s = t_rem * 0.11, i = t_rem * 0.03, o = t_rem * 0.03, f = basicoEscala * 0.005, c = base688 * 1.5 / 100, oa = (obrasocial == 'GEA') ? t_rem * 1.30 / 100 : 0;
-    let total_desc = s + i + o + f + c + oa;
-    return [s, i, o, f, c, oa, total_desc];
-}
-
-// 5. EVENTO CALCULAR Y RENDERIZADO DE TABLA
-document.getElementById('calcular').addEventListener('click', (e) => {
-    e.preventDefault();
-
-    // Verificar que los datos estén cargados
-    if (!ESCALAS_SALARIALES) {
-        alert("Los datos de escalas aún no se han cargado. Intenta nuevamente.");
-        return;
+    // ── Carga de escalas ────────────────────────────────────────────────
+    async function cargarEscalas() {
+        try {
+            const resp = await fetch(`escalas.json?t=${Date.now()}`, { cache: 'no-cache' });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            ESCALAS = await resp.json();
+            poblarMeses();
+            restaurarPreferencias();
+            btnCalcular.disabled = false;
+        } catch (err) {
+            console.error('Error cargando escalas:', err);
+            mostrarErrores(['No se pudieron cargar las escalas salariales. Revisá tu conexión y recargá la página.']);
+            $('mes').replaceChildren(el('option', { value: '' }, 'No disponible'));
+        }
     }
 
-    const mes = document.getElementById('mes').value.trim();
-    const contrato = document.getElementById('contrato').value.trim();
-
-    // Validaciones
-    if (!mes || mes === "Selecciona el Mes") {
-        alert("Por favor, selecciona un mes válido.");
-        return;
-    }
-    if (!contrato || contrato === "Contrato de Trabajo") {
-        alert("Por favor, selecciona un contrato válido.");
-        return;
+    function mesActualClave() {
+        const hoy = new Date();
+        return `${MESES[hoy.getMonth()]} ${hoy.getFullYear()}`;
     }
 
-    // Verificar que el mes y contrato existan en el JSON
-    if (!ESCALAS_SALARIALES[mes]) {
-        alert(`El mes "${mes}" no está disponible en las escalas.`);
-        return;
-    }
-    if (!ESCALAS_SALARIALES[mes][contrato]) {
-        alert(`El contrato "${contrato}" no existe para el mes "${mes}".`);
-        return;
+    function poblarMeses() {
+        const sel = $('mes');
+        const claves = Object.keys(ESCALAS);
+        sel.replaceChildren(el('option', { value: '' }, 'Elegí el mes'),
+            ...claves.map(k => el('option', { value: k, translate: 'no' }, titulo(k))));
+        sel.value = claves.includes(mesActualClave()) ? mesActualClave() : claves[claves.length - 1];
     }
 
-    // Obtener otros valores
-    const faltas = document.getElementById('faltas').value;
-    const tarde = document.getElementById('tarde').value;
-    const obrasocial = document.getElementById('obrasocial').value;
-    const conVacaciones = document.getElementById('vacaciones_check').checked;
-    const cvac = conVacaciones ? parseInt(document.getElementById('cvacaciones').value) || 0 : 0;
-    const num = id => parseFloat(document.getElementById(id).value) || 0;
-    const promVar = conVacaciones ? promedioVariables(mes, contrato, {
-        feriados: num('v6_feriados'), nocturnas: num('v6_nocturnas'),
-        extras50: num('v6_extras50'), extras100: num('v6_extras100'), extras100noct: num('v6_extras100noct')
-    }) : 0;
-    const cf = (faltas === 'SI') ? parseInt(document.getElementById('cfaltas').value) || 0 : 0;
-
-    if (cvac + cf > 30) {
-        alert("Los días de vacaciones más los días de falta no pueden superar 30.");
-        return;
+    function restaurarPreferencias() {
+        for (const id of PREFS) {
+            const v = leer('pref_' + id);
+            if (v !== null) $(id).value = v;
+        }
     }
-    const jus = (faltas === 'SI') ? document.getElementById('justificadas').value : 'NO';
 
-    const feriados = parseInt(document.getElementById('feriados').value) || 0;
-    const nocturnas = parseInt(document.getElementById('nocturnas').value) || 0;
-    const antiguedad = parseInt(document.getElementById('antiguedad').value) || 0;
-    const extras50 = parseInt(document.getElementById('extras50').value) || 0;
-    const extras100 = parseInt(document.getElementById('extras100').value) || 0;
-    const extras100noct = parseInt(document.getElementById('extras100noct').value) || 0;
+    // ── Paneles condicionales ───────────────────────────────────────────
+    const valorRadio = nombre => (form.querySelector(`input[name="${nombre}"]:checked`) || {}).value || '';
+    function sincronizarPaneles() {
+        $('faltas-detalle').hidden = valorRadio('faltas') !== 'SI';
+        $('vacaciones-detalle').hidden = !$('vacaciones_check').checked;
+    }
+    form.addEventListener('change', sincronizarPaneles);
 
-    // Cálculos
-    const trem = remunerativo(mes, contrato, tarde, faltas, jus, cf, feriados, nocturnas, antiguedad, extras50, extras100, extras100noct, cvac, promVar);
-    const tnr = no_remunerativo(mes, contrato, tarde, faltas, jus, feriados, antiguedad, cvac, extras50, extras100, extras100noct);
-    const td = descuentos(trem, tnr, obrasocial, ESCALAS_SALARIALES[mes][contrato].basico, regimenCCT688(mes));
-    const tsueldo = (trem[15] + tnr.total - td[6]).toFixed(2);
+    // ── Lectura y validación ────────────────────────────────────────────
+    function leerNumero(id, { entero = false, min = 0, max = Infinity, requerido = false } = {}) {
+        const input = $(id);
+        if (input.validity.badInput) return { error: true };
+        if (input.value.trim() === '') return requerido ? { error: true } : { valor: 0 };
+        const v = Number(input.value);
+        if (!Number.isFinite(v) || v < min || v > max || (entero && !Number.isInteger(v))) return { error: true };
+        return { valor: v };
+    }
 
-    const lineasNR = (nombre, a) => [
-        { name: nombre, no_remunerativo: a.monto },
-        { name: `${nombre} PRESENTISMO`, no_remunerativo: a.pres },
-        { name: `${nombre} ANTIGUEDAD`, no_remunerativo: a.ant },
-        { name: `${nombre} PUNTUALIDAD`, no_remunerativo: a.punt },
-        { name: `${nombre} FERIADO`, no_remunerativo: a.fer },
-        { name: `${nombre} HS. EXTRAS 50%`, no_remunerativo: a.ex50 },
-        { name: `${nombre} HS. EXTRAS 100%`, no_remunerativo: a.ex100 },
-        { name: `${nombre} HS. EXTRAS NOCT. 100%`, no_remunerativo: a.exN },
-        { name: `${nombre} VACACIONES`, no_remunerativo: a.vac }
+    function etiquetaDe(id) {
+        const l = form.querySelector(`label[for="${id}"]`);
+        return l ? l.textContent.trim() : id;
+    }
+
+    function limpiarErrores() {
+        form.querySelectorAll('.is-invalid').forEach(n => n.classList.remove('is-invalid'));
+        cajaErrores.hidden = true;
+        cajaErrores.replaceChildren();
+    }
+
+    function mostrarErrores(mensajes, ids = []) {
+        const lista = el('ul');
+        mensajes.forEach((m, i) => {
+            const id = ids[i];
+            lista.append(el('li', {}, id ? el('a', { href: '#' + id, 'data-foco': id }, m) : m));
+        });
+        cajaErrores.replaceChildren(
+            mensajes.length > 1 ? 'Revisá estos datos:' : 'Revisá este dato:', lista);
+        cajaErrores.hidden = false;
+    }
+
+    cajaErrores.addEventListener('click', ev => {
+        const id = ev.target.getAttribute && ev.target.getAttribute('data-foco');
+        if (id) { ev.preventDefault(); $(id).focus(); }
+    });
+
+    function leerEntrada() {
+        const errores = [];
+        const marcar = (id, msg) => {
+            const n = $(id);
+            (n.closest('.pregunta') || n).classList.add('is-invalid');
+            errores.push({ id, msg });
+        };
+        const feedback = id => form.querySelector(`#${id} ~ .invalid-feedback`)?.textContent || 'Valor inválido.';
+
+        const mes = $('mes').value, contrato = $('contrato').value, obraSocial = $('obrasocial').value;
+        if (!mes || !ESCALAS[mes]) marcar('mes', 'Elegí el mes a liquidar.');
+        if (!contrato) marcar('contrato', 'Elegí tu contrato.');
+        else if (mes && ESCALAS[mes] && !ESCALAS[mes][contrato]) marcar('contrato', `No hay escala de ${contrato} para ${titulo(mes)}.`);
+        if (!obraSocial) marcar('obrasocial', 'Elegí tu obra social.');
+
+        const entero = (id, max, requerido = false, min = 0) => {
+            const r = leerNumero(id, { entero: true, min, max, requerido });
+            if (r.error) { marcar(id, `${etiquetaDe(id)}: ${feedback(id).toLowerCase()}`); return 0; }
+            return r.valor;
+        };
+        const decimal = (id, max) => {
+            const r = leerNumero(id, { max });
+            if (r.error) { marcar(id, `${etiquetaDe(id)}: ${feedback(id).toLowerCase()}`); return 0; }
+            return r.valor;
+        };
+
+        const faltas = valorRadio('faltas') === 'SI';
+        let faltasJustificadas = false, diasFalta = 0;
+        if (faltas) {
+            const j = valorRadio('justificadas');
+            if (!j) marcar('justificadas-no', 'Indicá si las faltas fueron justificadas.');
+            faltasJustificadas = j === 'SI';
+            diasFalta = entero('cfaltas', 30, true, 1);
+        }
+
+        const conVacaciones = $('vacaciones_check').checked;
+        const diasVacaciones = conVacaciones ? entero('cvacaciones', 30, true, 1) : 0;
+        const variables6m = conVacaciones ? {
+            feriados: entero('v6_feriados', 186),
+            nocturnas: decimal('v6_nocturnas', 1800),
+            extras50: decimal('v6_extras50', 1200),
+            extras100: decimal('v6_extras100', 1200),
+            extras100noct: decimal('v6_extras100noct', 1200)
+        } : {};
+
+        if (diasFalta + diasVacaciones > 30) {
+            marcar('cvacaciones', 'Los días de vacaciones más los días de falta no pueden superar 30.');
+        }
+
+        const entrada = {
+            mes, contrato, obraSocial,
+            antiguedad: entero('antiguedad', 50),
+            faltas, faltasJustificadas, diasFalta,
+            llegadasTarde: valorRadio('tarde') === 'SI',
+            feriados: entero('feriados', 31),
+            nocturnas: decimal('nocturnas', 300),
+            extras50: decimal('extras50', 200),
+            extras100: decimal('extras100', 200),
+            extras100noct: decimal('extras100noct', 200),
+            diasVacaciones, variables6m
+        };
+        return { entrada, errores };
+    }
+
+    // ── Render del recibo ───────────────────────────────────────────────
+    function filas(items) {
+        // items: [concepto, importe, esDetalle?]
+        return items.filter(([, imp]) => imp > 0).map(([concepto, imp, detalle]) =>
+            el('tr', detalle ? { class: 'detalle-linea' } : {}, el('td', {}, concepto), el('td', {}, pesos.format(imp))));
+    }
+
+    function seccion(tituloSec, items, total, extraClase) {
+        const cuerpo = filas(items);
+        if (!cuerpo.length) return null;
+        return el('section', { class: 'recibo__seccion' + (extraClase ? ' ' + extraClase : '') },
+            el('h3', {}, tituloSec),
+            el('table', {},
+                el('tbody', {}, ...cuerpo),
+                el('tfoot', {}, el('tr', {}, el('td', {}, 'Total'), el('td', {}, pesos.format(total))))));
+    }
+
+    function lineasAcuerdoNR(nombre, a) {
+        if (!a) return [];
+        return [
+            [nombre, a.monto],
+            ['Antigüedad', a.antiguedad, true],
+            ['Feriado', a.feriado, true],
+            ['Horas extras 50%', a.extras50, true],
+            ['Horas extras 100%', a.extras100, true],
+            ['Horas extras nocturnas 100%', a.extras100noct, true],
+            ['Vacaciones', a.vacaciones, true],
+            ['Puntualidad', a.puntualidad, true],
+            ['Presentismo', a.presentismo, true]
+        ];
+    }
+
+    function armarSecciones(r) {
+        const e = r.entrada, h = r.haberes, n = r.noRemunerativo, d = r.descuentos;
+        const pctPres = !e.faltas ? 10 : (e.faltasJustificadas ? 6 : 0);
+        const diasTrabajados = 30 - e.diasFalta - e.diasVacaciones;
+        return [
+            {
+                titulo: 'Haberes', total: r.totales.haberes, items: [
+                    [`Sueldo de convenio (${diasTrabajados} días)`, h.sueldo],
+                    [`Pago de vacaciones (${e.diasVacaciones} días)`, h.vacaciones],
+                    [`Días de licencia (${e.diasFalta})`, h.licencia],
+                    [`Feriado trabajado (${e.feriados})`, h.feriado],
+                    [`Adicional por antigüedad (${e.antiguedad}%)`, h.antiguedad],
+                    [`Presentismo (${pctPres}%)`, h.presentismo],
+                    ['Puntualidad (0,5%)', h.puntualidad],
+                    [`Adicional hora nocturna (${numero(e.nocturnas)} h)`, h.nocturnas],
+                    [`Horas extras 50% (${numero(e.extras50)} h)`, h.extras50],
+                    [`Horas extras 100% (${numero(e.extras100)} h)`, h.extras100],
+                    [`Horas extras nocturnas 100% (${numero(e.extras100noct)} h)`, h.extras100noct],
+                    ['Acuerdo junio 2025', h.acuerdoRem],
+                    ['Presentismo', h.acuerdoRemPresentismo, true],
+                    ['Antigüedad', h.acuerdoRemAntiguedad, true],
+                    ['Puntualidad', h.acuerdoRemPuntualidad, true],
+                    ['Feriado', h.acuerdoRemFeriado, true]
+                ]
+            },
+            {
+                titulo: 'No remunerativo', total: r.totales.noRemunerativo, items: [
+                    ...lineasAcuerdoNR('Acuerdo julio 2025', n.jul2025),
+                    ...lineasAcuerdoNR('Acuerdo diciembre 2025', n.dic2025),
+                    ...lineasAcuerdoNR('Acuerdo abril 2026', n.abr2026),
+                    ['Suma no remunerativa única vez (cuota 1)', n.cuota1],
+                    ['Suma no remunerativa única vez (cuota 2)', n.cuota2]
+                ]
+            },
+            {
+                titulo: 'Descuentos', total: r.totales.descuentos, clase: 'recibo__seccion--descuentos', items: [
+                    ['Aporte jubilatorio SIJP (11%)', d.sijp],
+                    ['Aporte INSSJP (3%)', d.inssjp],
+                    ['Aporte obra social (3%)', d.obraSocial],
+                    ['Aporte obra social GEA (1,3%)', d.obraSocialGEA],
+                    ['CTT S. Fallecimiento', d.cttFallecimiento],
+                    ['CCT 688/14 (1,5%)', d.cct688]
+                ]
+            }
+        ];
+    }
+
+    function mostrarResultado(r) {
+        const contratoTxt = r.entrada.contrato.replace('hs', ' hs');
+        $('resultado-titulo').textContent = `${titulo(r.entrada.mes)} · ${contratoTxt}`;
+        $('neto').textContent = pesos.format(r.totales.neto);
+        $('recibo').replaceChildren(...armarSecciones(r)
+            .map(s => seccion(s.titulo, s.items, s.total, s.clase)).filter(Boolean));
+        resultado.querySelector('.resultado__desactualizado')?.remove();
+        resultado.classList.remove('resultado--viejo', 'entra');
+        resultado.hidden = false;
+        void resultado.offsetWidth; // reinicia la animación
+        resultado.classList.add('entra');
+        const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+        resultado.scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'start' });
+    }
+
+    // Si cambian los datos después de calcular, el resultado queda marcado como desactualizado
+    form.addEventListener('input', marcarDesactualizado);
+    form.addEventListener('change', marcarDesactualizado);
+    function marcarDesactualizado() {
+        if (resultado.hidden || resultado.classList.contains('resultado--viejo')) return;
+        resultado.classList.add('resultado--viejo');
+        resultado.querySelector('.resultado__neto').append(
+            el('p', { class: 'resultado__desactualizado' }, 'Cambiaste datos: tocá Calcular para actualizar el resultado.'));
+    }
+
+    // ── Calcular ────────────────────────────────────────────────────────
+    form.addEventListener('submit', ev => {
+        ev.preventDefault();
+        if (!ESCALAS) return;
+        limpiarErrores();
+        const { entrada, errores } = leerEntrada();
+        if (errores.length) {
+            mostrarErrores(errores.map(x => x.msg), errores.map(x => x.id));
+            $(errores[0].id).focus();
+            return;
+        }
+        PREFS.forEach(id => guardar('pref_' + id, $(id).value));
+        ultimo = window.Calculo.calcular(ESCALAS, entrada);
+        mostrarResultado(ultimo);
+    });
+
+    // ── Limpiar ─────────────────────────────────────────────────────────
+    $('limpiar').addEventListener('click', () => {
+        form.reset();
+        limpiarErrores();
+        if (ESCALAS) { poblarMeses(); restaurarPreferencias(); }
+        sincronizarPaneles();
+        resultado.hidden = true;
+        ultimo = null;
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        $('mes').focus();
+    });
+
+    // ── Compartir ───────────────────────────────────────────────────────
+    $('btn-whatsapp').addEventListener('click', () => {
+        if (!ultimo) return;
+        const texto = `Mi sueldo estimado de ${titulo(ultimo.entrada.mes)} es ${pesos.format(ultimo.totales.neto)}. ` +
+            `Calculado con la calculadora de Ornella Meolans: ${location.origin}${location.pathname}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
+    });
+
+    // jsPDF se carga recién cuando se pide el PDF (≈350 KB), con verificación de integridad
+    const LIBS_PDF = [
+        ['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+            'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk'],
+        ['https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js',
+            'sha384-GbQVk5KsTZEMJtvSbtmGpderuiERKpKVVFucxROOKnIXvtg03h3pORjyyGlPD6UO']
     ];
+    let cargaPdf = null;
+    function cargarScript([src, integrity]) {
+        return new Promise((ok, mal) => {
+            const s = el('script', { src, integrity, crossorigin: 'anonymous' });
+            s.onload = ok;
+            s.onerror = () => mal(new Error('No se pudo cargar ' + src));
+            document.head.append(s);
+        });
+    }
+    function cargarJsPDF() {
+        if (!cargaPdf) {
+            cargaPdf = LIBS_PDF.reduce((p, lib) => p.then(() => cargarScript(lib)), Promise.resolve())
+                .catch(err => { cargaPdf = null; throw err; });
+        }
+        return cargaPdf;
+    }
 
-    // Renderizar resultados (igual que antes)
-    const main = document.querySelector('main');
-    document.querySelectorAll('table, .table-responsive-wrapper, p.mes-titulo, #resultado-container').forEach(el => el.remove());
-
-    const titulo = document.createElement("p");
-    titulo.className = "mes-titulo";
-    titulo.innerHTML = `<h3>${mes}</h3>`;
-    main.append(titulo);
-
-    const tableWrapper = document.createElement("div");
-    tableWrapper.className = "table-responsive-wrapper";
-
-    const tab = document.createElement('table');
-    tab.className = 'table table-bordered';
-    tab.innerHTML = `<thead><tr><th>Conceptos</th><th>Haberes</th><th>No Remunerativo</th><th>Descuentos</th></tr></thead>`;
-    const b = document.createElement('tbody');
-
-    const lineItems = [
-        { name: "BASICO", haberes: trem[0] },
-        { name: "VACACIONES GOZADAS", haberes: trem[14] },
-        { name: "FERIADO", haberes: trem[1] },
-        { name: "PRESENTISMO", haberes: trem[2] },
-        { name: "ANTIGUEDAD", haberes: trem[3] },
-        { name: "PUNTUALIDAD", haberes: trem[4] },
-        { name: "DIAS DE LICENCIA", haberes: trem[5] },
-        { name: "ADICIONAL HORA NOCTURNA", haberes: trem[6] },
-        { name: "HORAS EXTRAS 50%", haberes: trem[7] },
-        { name: "HORAS EXTRAS 100%", haberes: trem[8] },
-        { name: "HS. EXTRAS NOCTURNAS 100%", haberes: trem[16] },
-        { name: "ACUERDO JUNIO 2025", haberes: trem[9] },
-        { name: "ACUERDO JUNIO 2025 PRESENTISMO", haberes: trem[10] },
-        { name: "ACUERDO JUNIO 2025 ANTIGUEDAD", haberes: trem[11] },
-        { name: "ACUERDO JUNIO 2025 PUNTUALIDAD", haberes: trem[12] },
-        { name: "ACUERDO JUNIO 2025 FERIADO", haberes: trem[13] },
-        // Acuerdos No Remunerativos
-        ...lineasNR("ACUERDO JULIO 2025", tnr.jul),
-        ...lineasNR("ACUERDO DICIEMBRE 2025", tnr.dic),
-        ...lineasNR("ACUERDO ABRIL 2026", tnr.abr),
-        // Sumas únicas
-        { name: "ACUERDO SUMA ÚNICA CUOTA 1", no_remunerativo: tnr.cuota1 },
-        { name: "ACUERDO SUMA ÚNICA CUOTA 2", no_remunerativo: tnr.cuota2 },
-        // Descuentos
-        { name: "APORTE SIJP SOBRE SUELDO", descuentos: td[0] },
-        { name: "APORTE INSSJP SOBRE SUELDO", descuentos: td[1] },
-        { name: "APORTE O. SOC SOBRE SUELDO", descuentos: td[2] },
-        { name: "CTT S FALLECIMIENTO", descuentos: td[3] },
-        { name: "CTT 688/14", descuentos: td[4] },
-        { name: "APORTE O. SOCIAL ACUERDO", descuentos: td[5] }
-    ];
-
-    lineItems.forEach(i => {
-        if ((i.haberes || 0) + (i.no_remunerativo || 0) + (i.descuentos || 0) > 0) {
-            b.innerHTML += `<tr><td>${i.name}</td><td>${i.haberes ? i.haberes.toFixed(2) : ''}</td><td>${i.no_remunerativo ? i.no_remunerativo.toFixed(2) : ''}</td><td>${i.descuentos ? i.descuentos.toFixed(2) : ''}</td></tr>`;
+    $('btn-pdf').addEventListener('click', async () => {
+        if (!ultimo) return;
+        const btn = $('btn-pdf');
+        const textoOriginal = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Generando PDF…';
+        try {
+            await cargarJsPDF();
+            generarPDF(ultimo);
+        } catch (err) {
+            console.error(err);
+            mostrarErrores(['No se pudo generar el PDF. Revisá tu conexión e intentá de nuevo.']);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = textoOriginal;
         }
     });
 
-    b.innerHTML += `<tr style="font-weight:bold;"><td>TOTALES</td><td>${trem[15].toFixed(2)}</td><td>${tnr.total.toFixed(2)}</td><td>${td[6].toFixed(2)}</td></tr>`;
-    tab.appendChild(b);
-    tableWrapper.appendChild(tab);
-    main.appendChild(tableWrapper);
+    function generarPDF(r) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const mes = titulo(r.entrada.mes);
+        const marca = [67, 97, 238];
 
-    const res = document.createElement("div");
-    res.id = "resultado-container";
-    res.innerHTML = `
-        <h3>Total a cobrar:</h3>
-        <p>$ ${tsueldo}</p>
-        <p style="color: #ff0000; font-weight: bold; font-size: 0.9rem; margin-top: 10px;">
-            ACLARACIÓN: Esto es un cálculo aproximado, puede haber diferencias con el original.
-        </p>
-    `;
-    main.append(res);
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-});
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(...marca);
+        doc.text('Recibo de sueldo estimado', 105, 16, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(90);
+        doc.text(`${mes} · ${r.entrada.contrato.replace('hs', ' hs')}`, 105, 23, { align: 'center' });
 
-// 6. EXPORTACIÓN (PDF Y WHATSAPP)
-document.getElementById('btn-pdf').addEventListener('click', () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const tabla = document.querySelector('table');
-    const resultado = document.getElementById('resultado-container');
-    const mes = document.getElementById('mes').value;
+        const body = [];
+        for (const s of armarSecciones(r)) {
+            const items = s.items.filter(([, imp]) => imp > 0);
+            if (!items.length) continue;
+            body.push([{ content: s.titulo.toUpperCase(), colSpan: 2, styles: { fontStyle: 'bold', fillColor: [238, 241, 253], textColor: [40, 40, 60] } }]);
+            items.forEach(([c, imp, det]) => body.push([(det ? '    ' : '') + c, pesos.format(imp)]));
+            body.push([{ content: 'Total', styles: { fontStyle: 'bold' } }, { content: pesos.format(s.total), styles: { fontStyle: 'bold' } }]);
+        }
 
-    if (!tabla || !resultado) {
-        alert("Primero debes calcular el sueldo.");
-        return;
+        doc.autoTable({
+            startY: 30,
+            head: [['Concepto', 'Importe']],
+            body,
+            theme: 'plain',
+            headStyles: { fillColor: marca, textColor: 255, fontSize: 9 },
+            styles: { fontSize: 8.5, cellPadding: 1.8 },
+            columnStyles: { 1: { halign: 'right', cellWidth: 45 } }
+        });
+
+        const y = doc.lastAutoTable.finalY + 10;
+        doc.setFillColor(238, 241, 253);
+        doc.roundedRect(50, y, 110, 20, 3, 3, 'F');
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        doc.text('Neto estimado a cobrar', 105, y + 7, { align: 'center' });
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(...marca);
+        doc.text(pesos.format(r.totales.neto), 105, y + 15, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(120);
+        doc.text('Cálculo aproximado: puede haber diferencias con el recibo original.', 105, y + 28, { align: 'center' });
+
+        doc.save(`Sueldo_${r.entrada.mes.replace(/\s+/g, '_')}.pdf`);
     }
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(67, 97, 238);
-    doc.text("Recibo de Sueldo Estimado", 105, 15, { align: "center" });
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Liquidación: ${mes}`, 105, 22, { align: "center" });
-
-    doc.autoTable({
-        html: 'table',
-        startY: 30,
-        theme: 'striped',
-        headStyles: { fillColor: [67, 97, 238], textColor: 255, fontSize: 8, halign: 'center' },
-        styles: { fontSize: 7.5, cellPadding: 2 },
-        columnStyles: { 0: { halign: 'left', cellWidth: 80 }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' } }
-    });
-
-    let finalY = doc.lastAutoTable.finalY + 10;
-    doc.setFillColor(240, 244, 255);
-    doc.rect(55, finalY, 100, 18, 'FD'); 
-    doc.setFontSize(11);
-    doc.text("TOTAL NETO A COBRAR:", 105, finalY + 7, { align: "center" });
-    doc.setFontSize(13);
-    doc.setTextColor(0);
-    doc.text(resultado.querySelector('p').innerText, 105, finalY + 14, { align: "center" });
-
-    doc.save(`Sueldo_${mes.replace(" ", "_")}.pdf`);
-});
-
-document.getElementById('btn-whatsapp').addEventListener('click', () => {
-    const totalElement = document.querySelector('#resultado-container p');
-    if (!totalElement) { alert("Realiza el cálculo primero."); return; }
-    const texto = `Mi estimación de sueldo para ${document.getElementById('mes').value} es de ${totalElement.innerText}. Calculado con la App de Ornella Meolans.`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
-});
-
-// 7. LÓGICA DE VISIBILIDAD
-function inicializarVisibilidad() {
-    const selFaltas = document.getElementById('faltas');
-    const contFaltas = document.getElementById('faltas-container');
-    const checkVacas = document.getElementById('vacaciones_check');
-    const contVacas = document.getElementById('vacaciones-container');
-
-    selFaltas.addEventListener('change', () => contFaltas.style.display = (selFaltas.value === 'SI' ? 'block' : 'none'));
-    checkVacas.addEventListener('change', () => contVacas.style.display = (checkVacas.checked ? 'block' : 'none'));
-
-    document.getElementById('limpiar').addEventListener('click', () => {
-        miformulario.reset();
-        contFaltas.style.display = 'none';
-        contVacas.style.display = 'none';
-        document.querySelectorAll('table, .table-responsive-wrapper, p.mes-titulo, #resultado-container').forEach(el => el.remove());
-    });
-}
+    sincronizarPaneles();
+    cargarEscalas();
+})();

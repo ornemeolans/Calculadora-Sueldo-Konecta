@@ -36,8 +36,30 @@ El proyecto fue construido utilizando un stack web estándar para asegurar liger
 ## 📂 Estructura del Proyecto
 ```text
 /
-├── assets/         # Recursos visuales (imágenes, logos)
-├── css/            # Estilos de la aplicación
-├── js/             # Lógica de cálculo y scripts
-├── escalas.json    # Base de datos de sueldos y categorías
-└── index.html      # Punto de entrada de la aplicación
+├── assets/               # Recursos visuales (logo)
+├── css/style.css         # Estilos (tokens de color, modo claro/oscuro)
+├── js/calculo.js         # Lógica de cálculo, sin DOM (se usa en la página y en los tests)
+├── js/script.js          # Interfaz: formulario, validaciones, resultado, PDF y WhatsApp
+├── tests/                # Tests de regresión contra recibos reales
+├── escalas.json          # Escalas salariales y acuerdos por mes y contrato
+└── index.html            # Punto de entrada
+```
+
+## ✅ Tests
+
+Los tests comparan la calculadora con recibos reales de Konecta (abril, junio, julio, agosto y
+septiembre 2026) y verifican que `escalas.json` sea coherente (35 hs y 30 hs proporcionales a 36 hs).
+No requieren instalar dependencias:
+
+```bash
+npm test
+```
+
+GitHub Actions los ejecuta automáticamente en cada push.
+
+## 🔄 Cómo agregar un mes nuevo
+
+1. Cargá el mes en `escalas.json` (el menú de meses se genera solo a partir de este archivo).
+2. Ejecutá `npm test` para verificar que no haya errores de tipeo.
+3. Si cambiaste `css/style.css` o algún archivo de `js/`, actualizá el `?v=` en `index.html`
+   para que los navegadores descarguen la versión nueva.

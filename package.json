@@ -1,0 +1,8 @@
+{
+  "name": "calculadora-sueldo-konecta",
+  "private": true,
+  "description": "Calculadora de sueldo estimado para colaboradores de Konecta",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}
