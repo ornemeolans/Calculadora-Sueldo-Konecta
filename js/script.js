@@ -263,7 +263,7 @@
                     ['Aporte jubilatorio SIJP (11%)', d.sijp],
                     ['Aporte INSSJP (3%)', d.inssjp],
                     ['Aporte obra social (3%)', d.obraSocial],
-                    ['Aporte obra social GEA (1,3%)', d.obraSocialGEA],
+                    ['Aporte obra social acuerdo (3% s/ no remunerativo)', d.obraSocialAcuerdo],
                     ['CTT S. Fallecimiento', d.cttFallecimiento],
                     ['CCT 688/14 (1,5%)', d.cct688]
                 ]

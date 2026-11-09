@@ -22,7 +22,7 @@
         SIJP: 0.11,
         INSSJP: 0.03,
         OBRA_SOCIAL: 0.03,
-        OBRA_SOCIAL_GEA: 0.013,
+        OBRA_SOCIAL_ACUERDO: 0.03, // "Aporte O.Social Acuerdo" (GEA/OSTACC): 3% sobre el total no remunerativo
         CTT_FALLECIMIENTO: 0.005,
         CCT_688: 0.015
     };
@@ -181,7 +181,7 @@
             obraSocial: r2(totalRem * PCT.OBRA_SOCIAL),
             cttFallecimiento: r2(basico * PCT.CTT_FALLECIMIENTO),
             cct688: r2(base688 * PCT.CCT_688),
-            obraSocialGEA: e.obraSocial === 'GEA' ? r2(totalRem * PCT.OBRA_SOCIAL_GEA) : 0
+            obraSocialAcuerdo: e.obraSocial === 'GEA' ? r2(totalNR * PCT.OBRA_SOCIAL_ACUERDO) : 0
         };
         const totalDesc = suma(Object.values(d));
 

@@ -86,6 +86,21 @@ test('Abril 2026 — 12 días de vacaciones con horas extras', () => {
     cerca(r.descuentos.cct688, 18832.25, 'CCT 688/14');
 });
 
+test('Octubre 2026 — obra social GEA/OSTACC: aporte 3% sobre el no remunerativo (recibo de otro colaborador)', () => {
+    // Liquidado con el básico de septiembre (la paritaria de octubre todavía no estaba aplicada)
+    const escalas = JSON.parse(JSON.stringify(ESCALAS));
+    escalas['OCTUBRE 2026']['36hs'] = { ...escalas['SEPTIEMBRE 2026']['36hs'] };
+    const r = calcular(escalas, { ...base, mes: 'OCTUBRE 2026', antiguedad: 6, feriados: 1, obraSocial: 'GEA' });
+    cerca(r.haberes.presentismo, 98039.77, 'presentismo');
+    cerca(r.haberes.puntualidad, 4877.60, 'puntualidad');
+    cerca(r.totales.haberes, 1078437.46, 'total haberes');
+    cerca(r.totales.noRemunerativo, 163780.01, 'total no remunerativo');
+    cerca(r.descuentos.obraSocialAcuerdo, 4913.40, 'aporte O.Social Acuerdo');
+    cerca(r.descuentos.cct688, 15683.37, 'CCT 688/14');
+    cerca(r.totales.descuentos, 208392.35, 'total descuentos');
+    cerca(r.totales.neto, 1033825.12, 'neto');
+});
+
 test('Sin vacaciones las líneas de vacaciones son cero', () => {
     const r = calcular(ESCALAS, { ...base, mes: 'NOVIEMBRE 2026', antiguedad: 3 });
     assert.equal(r.haberes.vacaciones, 0);
